@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>Sales Report</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f7f6;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .container {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 25px;
+      font-size: 1.8em;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+      width: calc(100% - 20px);
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+
+    select,
+    textarea {
+      width: 100%;
+    }
+
+    textarea {
+      resize: vertical;
+      font-family: inherit;
+      min-height: 60px;
+    }
+
+    /* Product Section Styles */
+    .product-section {
+      margin-top: 30px;
+      border-top: 2px solid #e0e0e0;
+      padding-top: 20px;
+    }
+
+    .product-section h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+
+    .product-tabs {
+      width: 100%;
+    }
+
+    .tab-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .tab-button {
+      padding: 8px 12px;
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-bottom: none;
+      cursor: pointer;
+      font-size: 0.9em;
+      border-radius: 4px 4px 0 0;
+      transition: background-color 0.2s;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .tab-button:hover {
+      background-color: #e9ecef;
+    }
+
+    .tab-button.active {
+      background-color: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+
+    .tab-button.has-data {
+      background-color: #28a745;
+      color: white;
+      border-color: #28a745;
+    }
+
+    .tab-button.has-data.active {
+      background-color: #1e7e34;
+      border-color: #1e7e34;
+    }
+
+    .tab-content {
+      padding: 15px;
+      border: 1px solid #e0e0e0;
+      border-radius: 0 4px 4px 4px;
+      background-color: #fff;
+    }
+
+    .product-form {
+      display: none;
+    }
+
+    .product-form.active {
+      display: block;
+    }
+
+    .product-form label {
+      margin-bottom: 5px;
+      font-size: 0.9em;
+    }
+
+    .product-form input {
+      margin-bottom: 10px;
+      padding: 8px;
+      font-size: 0.9em;
+    }
+
+
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+
+    #message {
+      margin-top: 20px;
+      text-align: center;
+      font-weight: bold;
+      color: #28a745;
+      /* Success color */
+      min-height: 1.2em;
+      /* Ensure space even when empty */
+    }
+
+    #message.error {
+      color: #dc3545;
+      /* Error color */
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Sales Report</h1>
+    <form id="salesForm">
+      <label for="name">Your Name:</label>
+      <select id="name" name="name" required>
+        <option value="">👤 Loading names...</option>
+      </select><br>
+
+      <label for="area">Area:</label>
+      <select id="area" name="area" required>
+        <option value="">🌍 Loading areas...</option>
+      </select><br>
+
+
+      <label for="store">Store:</label>
+      <select id="store" name="store" required>
+        <option value="">🏪 Loading stores...</option>
+      </select><br>
+
+      <label for="branch">Branch:</label>
+      <select id="branch" name="branch" required>
+        <option value="">🏢 Select store first</option>
+      </select><br>
+
+      <label for="note">Note:</label>
+      <textarea id="note" name="note" placeholder="Enter any additional notes..." rows="3"></textarea><br>
+
+      <input type="hidden" id="latitude" name="latitude">
+      <input type="hidden" id="longitude" name="longitude">
+    </form>
+
+    <!-- Product Sales Section -->
+    <div id="productSection" class="product-section">
+      <h2>Product Sales</h2>
+      <div id="productTabs" class="product-tabs">
+        <div id="productTabButtons" class="tab-buttons">
+          <!-- Product tabs will be dynamically loaded -->
+        </div>
+        <div id="productTabContent" class="tab-content">
+          <!-- Product content will be dynamically loaded -->
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 30px;">
+      <button type="submit" id="submitButton" form="salesForm">Register</button>
+    </div>
+    <div id="message"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('salesForm');
+    const messageDiv = document.getElementById('message');
+    const latitudeInput = document.getElementById('latitude');
+    const longitudeInput = document.getElementById('longitude');
+    const submitButton = document.getElementById('submitButton');
+    const nameSelect = document.getElementById('name');
+    const areaSelect = document.getElementById('area');
+    const storeSelect = document.getElementById('store');
+    const branchSelect = document.getElementById('branch');
+    let storesData = {};
+    let productsData = [];
+    let activeProductTab = null;
+
+    // Function to load names from server
+    function loadNames() {
+      google.script.run
+        .withSuccessHandler(function (names) {
+          nameSelect.innerHTML = '';
+          const defaultOption = document.createElement('option');
+          defaultOption.value = '';
+          defaultOption.textContent = '👤 Select your name';
+          nameSelect.appendChild(defaultOption);
+
+          names.forEach(function (name) {
+            const option = document.createElement('option');
+            option.value = name;
+            option.textContent = name;
+            nameSelect.appendChild(option);
+          });
+        })
+        .withFailureHandler(function (error) {
+          console.error('Failed to load names:', error);
+          nameSelect.innerHTML = '<option value="">❌ Failed to load names</option>';
+          messageDiv.textContent = 'Failed to load names: ' + error.message;
+          messageDiv.className = 'error';
+        })
+        .getMemberList();
+    }
+
+    // Function to load areas from server
+    function loadAreas() {
+      google.script.run
+        .withSuccessHandler(function (areas) {
+          areaSelect.innerHTML = '';
+          const defaultOption = document.createElement('option');
+          defaultOption.value = '';
+          defaultOption.textContent = '🌍 Select area';
+          areaSelect.appendChild(defaultOption);
+
+          areas.forEach(function (area) {
+            const option = document.createElement('option');
+            option.value = area;
+            option.textContent = area;
+            areaSelect.appendChild(option);
+          });
+        })
+        .withFailureHandler(function (error) {
+          console.error('Failed to load areas:', error);
+          areaSelect.innerHTML = '<option value="">❌ Failed to load areas</option>';
+          messageDiv.textContent = 'Failed to load areas: ' + error.message;
+          messageDiv.className = 'error';
+        })
+        .getAreaList();
+    }
+
+    // Function to load products from server
+    function loadProducts() {
+      google.script.run
+        .withSuccessHandler(function (products) {
+          productsData = products;
+          createProductTabs();
+        })
+        .withFailureHandler(function (error) {
+          console.error('Failed to load products:', error);
+          document.getElementById('productSection').style.display = 'none';
+        })
+        .getProductList();
+    }
+
+    // Function to load stores from server
+    function loadStores() {
+      google.script.run
+        .withSuccessHandler(function (data) {
+          storesData = data;
+          storeSelect.innerHTML = '';
+          const defaultOption = document.createElement('option');
+          defaultOption.value = '';
+          defaultOption.textContent = '🏪 Select store';
+          storeSelect.appendChild(defaultOption);
+
+          data.store.forEach(function (store) {
+            const option = document.createElement('option');
+            option.value = store;
+            option.textContent = store;
+            storeSelect.appendChild(option);
+          });
+        })
+        .withFailureHandler(function (error) {
+          console.error('Failed to load stores:', error);
+          storeSelect.innerHTML = '<option value="">❌ Failed to load stores</option>';
+          messageDiv.textContent = 'Failed to load stores: ' + error.message;
+          messageDiv.className = 'error';
+        })
+        .getStoreList();
+    }
+
+    // Function to populate stores based on selected area
+    function populateStoresByArea() {
+      const selectedArea = areaSelect.value;
+      storeSelect.innerHTML = '';
+      branchSelect.innerHTML = '';
+
+      if (selectedArea && storesData.areaStoreMap && storesData.areaStoreMap[selectedArea]) {
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = '🏢 Select store';
+        storeSelect.appendChild(defaultOption);
+
+        storesData.areaStoreMap[selectedArea].forEach(function (store) {
+          const option = document.createElement('option');
+          option.value = store;
+          option.textContent = store;
+          storeSelect.appendChild(option);
+        });
+
+        // Enable store select
+        storeSelect.disabled = false;
+      } else {
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = '🏢 Select area first';
+        storeSelect.appendChild(defaultOption);
+
+        // Disable store select until area is chosen
+        storeSelect.disabled = true;
+      }
+
+      // Reset branch dropdown
+      const branchDefaultOption = document.createElement('option');
+      branchDefaultOption.value = '';
+      branchDefaultOption.textContent = '🏢 Select store first';
+      branchSelect.appendChild(branchDefaultOption);
+      branchSelect.disabled = true;
+    }
+
+    // Function to populate branches based on selected area and store
+    function populateBranchesByAreaAndStore() {
+      const selectedArea = areaSelect.value;
+      const selectedStore = storeSelect.value;
+      branchSelect.innerHTML = '';
+
+      if (selectedArea && selectedStore && storesData.areaStoreBranchMap) {
+        const areaStoreKey = `${selectedArea}|${selectedStore}`;
+        if (storesData.areaStoreBranchMap[areaStoreKey]) {
+          const defaultOption = document.createElement('option');
+          defaultOption.value = '';
+          defaultOption.textContent = '🏢 Select branch';
+          branchSelect.appendChild(defaultOption);
+
+          storesData.areaStoreBranchMap[areaStoreKey].forEach(function (branch) {
+            const option = document.createElement('option');
+            option.value = branch;
+            option.textContent = branch;
+            branchSelect.appendChild(option);
+          });
+
+          // Enable branch select
+          branchSelect.disabled = false;
+        } else {
+          const defaultOption = document.createElement('option');
+          defaultOption.value = '';
+          defaultOption.textContent = '🏢 No branches available';
+          branchSelect.appendChild(defaultOption);
+          branchSelect.disabled = true;
+        }
+      } else if (selectedArea && !selectedStore) {
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = '🏢 Select store first';
+        branchSelect.appendChild(defaultOption);
+        branchSelect.disabled = true;
+      } else {
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = '🏢 Select area first';
+        branchSelect.appendChild(defaultOption);
+        branchSelect.disabled = true;
+      }
+    }
+
+    // Handle branch selection to update product tabs
+    branchSelect.addEventListener('change', function () {
+      updateProductTabs(); // Update products when branch changes
+    });
+
+    // Handle area selection to populate stores and reset branches
+    areaSelect.addEventListener('change', function () {
+      populateStoresByArea();
+      populateBranchesByAreaAndStore(); // Reset branches
+    });
+
+    // Handle store selection to populate branches
+    storeSelect.addEventListener('change', function () {
+      populateBranchesByAreaAndStore();
+      updateProductTabs(); // Update products when store changes
+    });
+
+    // Function to get product icon based on type
+    function getProductIcon(productType) {
+      const type = productType.toLowerCase();
+      if (type.includes('rtd')) {
+        return '🍵'; // tea icon for RTD
+      } else if (type.includes('leaf')) {
+        return '🌿'; // leaf icon for Leaf products
+      }
+      return '📦'; // default package icon
+    }
+
+    // Function to create product tabs (initial load - shows instruction message)
+    function createProductTabs() {
+      const tabButtons = document.getElementById('productTabButtons');
+      const tabContent = document.getElementById('productTabContent');
+
+      tabButtons.innerHTML = '';
+      tabContent.innerHTML = '';
+
+      if (productsData.length === 0) {
+        document.getElementById('productSection').style.display = 'none';
+        return;
+      }
+
+      // Show instruction message initially
+      const instructionMessage = document.createElement('div');
+      instructionMessage.style.textAlign = 'center';
+      instructionMessage.style.padding = '20px';
+      instructionMessage.style.color = '#666';
+      instructionMessage.textContent = 'Please select a store and branch to see available products.';
+      tabContent.appendChild(instructionMessage);
+    }
+
+    // Function to switch product tabs
+    function switchProductTab(index) {
+      // Remove active class from all buttons and forms
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.product-form').forEach(form => form.classList.remove('active'));
+
+      // Add active class to selected button and form
+      document.querySelectorAll('.tab-button')[index].classList.add('active');
+      document.getElementById(`product-form-${index}`).classList.add('active');
+
+      activeProductTab = index;
+    }
+
+    // Load names, areas, stores, and products when page loads
+    window.addEventListener('load', function () {
+      loadNames();
+      loadAreas();
+      loadStores();
+      loadProducts();
+
+      // Initially disable store and branch selects
+      storeSelect.disabled = true;
+      branchSelect.disabled = true;
+    });
+
+    // Function to get geolocation
+    function getLocation() {
+      return new Promise((resolve, reject) => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              latitudeInput.value = position.coords.latitude;
+              longitudeInput.value = position.coords.longitude;
+              resolve();
+            },
+            (error) => {
+              console.error("Failed to get location:", error);
+              let errorMessage = 'Failed to get location.';
+              switch (error.code) {
+                case error.PERMISSION_DENIED:
+                  errorMessage = 'Location access denied. Please allow location access in your browser settings.';
+                  break;
+                case error.POSITION_UNAVAILABLE:
+                  errorMessage = 'Location information is unavailable.';
+                  break;
+                case error.TIMEOUT:
+                  errorMessage = 'The request to get user location timed out.';
+                  break;
+                case error.UNKNOWN_ERROR:
+                  errorMessage = 'An unknown error occurred while getting location.';
+                  break;
+              }
+              messageDiv.textContent = errorMessage;
+              messageDiv.className = 'error'; // Add error class for styling
+              reject(error);
+            },
+            {
+              enableHighAccuracy: true,
+              timeout: 10000, // Increased timeout for potentially slower mobile connections
+              maximumAge: 0
+            }
+          );
+        } else {
+          messageDiv.textContent = 'Your browser does not support geolocation.';
+          messageDiv.className = 'error';
+          reject(new Error("Geolocation not supported"));
+        }
+      });
+    }
+
+
+    // Function to collect product sales data
+    function collectProductData() {
+      const productSales = [];
+      const availableProducts = getAvailableProducts();
+
+      // Include ALL available products - validation ensures they all have required data
+      availableProducts.forEach((product, tabIndex) => {
+        const salesCount = document.getElementById(`product-sales-${tabIndex}`).value;
+        const samplingCount = document.getElementById(`product-sampling-${tabIndex}`).value;
+        const productNote = document.getElementById(`product-note-${tabIndex}`).value || '';
+
+        productSales.push({
+          type: product.type,
+          name: product.name,
+          salesCount: salesCount,
+          samplingCount: samplingCount,
+          note: productNote
+        });
+      });
+
+      return productSales;
+    }
+
+    // Function to validate product sales
+    function validateProductSales(productSales) {
+      const availableProducts = getAvailableProducts();
+      
+      if (availableProducts.length === 0) {
+        messageDiv.textContent = 'No products available for this store and branch.';
+        messageDiv.className = 'error';
+        return false;
+      }
+      
+      let validationErrors = [];
+      
+      // ALL available products must have their required fields filled
+      availableProducts.forEach((product, tabIndex) => {
+        const salesCount = document.getElementById(`product-sales-${tabIndex}`).value;
+        const samplingCount = document.getElementById(`product-sampling-${tabIndex}`).value;
+        
+        // Sales and sampling counts are always required
+        if (!salesCount || salesCount === '') {
+          validationErrors.push(`${product.name}: Sales Count is required`);
+        }
+        if (!samplingCount || samplingCount === '') {
+          validationErrors.push(`${product.name}: Sampling Count is required`);
+        }
+      });
+      
+      if (validationErrors.length > 0) {
+        messageDiv.textContent = validationErrors[0]; // Show first error
+        messageDiv.className = 'error';
+        return false;
+      }
+      
+      return true;
+    }
+
+    // Function to clear all product form data
+    function clearProductForms() {
+      const availableProducts = getAvailableProducts();
+      availableProducts.forEach((product, tabIndex) => {
+        const salesInput = document.getElementById(`product-sales-${tabIndex}`);
+        const samplingInput = document.getElementById(`product-sampling-${tabIndex}`);
+        const noteInput = document.getElementById(`product-note-${tabIndex}`);
+        
+        if (salesInput) salesInput.value = '';
+        if (samplingInput) samplingInput.value = '';
+        if (noteInput) noteInput.value = '';
+      });
+      
+      // Update visual indicators for all visible tabs
+      availableProducts.forEach((product, tabIndex) => {
+        updateTabIndicatorForFiltered(tabIndex);
+      });
+    }
+
+    // Function to check if a product tab has any data
+    function hasProductData(index) {
+      const salesCount = document.getElementById(`product-sales-${index}`).value;
+      const samplingCount = document.getElementById(`product-sampling-${index}`).value;
+      const productNote = document.getElementById(`product-note-${index}`).value;
+      
+      return salesCount || samplingCount || productNote;
+    }
+
+    // Function to update tab visual indicator
+    function updateTabIndicator(index) {
+      const tabButton = document.querySelectorAll('.tab-button')[index];
+      const icon = getProductIcon(productsData[index].type);
+      
+      if (hasProductData(index)) {
+        tabButton.classList.add('has-data');
+        tabButton.innerHTML = `✅ ${icon} ${productsData[index].name}`;
+      } else {
+        tabButton.classList.remove('has-data');
+        tabButton.innerHTML = `${icon} ${productsData[index].name}`;
+      }
+    }
+
+    // Function to update all tab indicators
+    function updateAllTabIndicators() {
+      productsData.forEach((product, index) => {
+        updateTabIndicator(index);
+      });
+    }
+
+    // Function to get available products for selected store and branch
+    function getAvailableProducts() {
+      const selectedStore = storeSelect.value;
+      const selectedBranch = branchSelect.value;
+      
+      if (!selectedStore || !selectedBranch || !storesData.storeBranchProductMap) {
+        return []; // No products available if store/branch not selected
+      }
+      
+      const storeBranchKey = `${selectedStore}|${selectedBranch}`;
+      const availableProductIndices = storesData.storeBranchProductMap[storeBranchKey] || [];
+      
+      // Filter products based on available indices
+      return productsData.filter((product, index) => availableProductIndices.includes(index));
+    }
+
+    // Function to update product tabs based on store/branch selection
+    function updateProductTabs() {
+      const availableProducts = getAvailableProducts();
+      const tabButtons = document.getElementById('productTabButtons');
+      const tabContent = document.getElementById('productTabContent');
+      
+      // Clear existing tabs
+      tabButtons.innerHTML = '';
+      tabContent.innerHTML = '';
+      
+      if (availableProducts.length === 0) {
+        // Show message when no products are available
+        const noProductsMessage = document.createElement('div');
+        noProductsMessage.style.textAlign = 'center';
+        noProductsMessage.style.padding = '20px';
+        noProductsMessage.style.color = '#666';
+        noProductsMessage.textContent = 'No products available for this store and branch combination.';
+        tabContent.appendChild(noProductsMessage);
+        return;
+      }
+      
+      // Create tabs for available products
+      availableProducts.forEach((product, tabIndex) => {
+        const originalIndex = productsData.indexOf(product);
+        
+        // Create tab button with icon
+        const tabButton = document.createElement('div');
+        tabButton.className = 'tab-button';
+        const icon = getProductIcon(product.type);
+        tabButton.innerHTML = `${icon} ${product.name}`;
+        tabButton.onclick = () => switchProductTab(tabIndex);
+        tabButtons.appendChild(tabButton);
+
+        // Create tab content
+        const productForm = document.createElement('div');
+        productForm.className = 'product-form';
+        productForm.id = `product-form-${tabIndex}`;
+        productForm.innerHTML = `
+          <h3>${product.type} - ${product.name}</h3>
+          <label for="product-sales-${tabIndex}">Sales Count: <span style="color: red;">*</span></label>
+          <input type="number" id="product-sales-${tabIndex}" min="0" placeholder="-" required>
+          
+          <label for="product-sampling-${tabIndex}">Sampling Count: <span style="color: red;">*</span></label>
+          <input type="number" id="product-sampling-${tabIndex}" min="0" placeholder="-" required>
+          
+          <label for="product-note-${tabIndex}">Product Note:</label>
+          <textarea id="product-note-${tabIndex}" rows="2" placeholder="Product-specific notes..."></textarea>
+        `;
+        tabContent.appendChild(productForm);
+
+        // Add event listeners to update tab indicator when data changes
+        const currentTabIndex = tabIndex;
+        ['input', 'change'].forEach(eventType => {
+          document.getElementById(`product-sales-${currentTabIndex}`).addEventListener(eventType, () => {
+            updateTabIndicatorForFiltered(currentTabIndex);
+          });
+          document.getElementById(`product-sampling-${currentTabIndex}`).addEventListener(eventType, () => {
+            updateTabIndicatorForFiltered(currentTabIndex);
+          });
+          document.getElementById(`product-note-${currentTabIndex}`).addEventListener(eventType, () => updateTabIndicatorForFiltered(currentTabIndex));
+        });
+      });
+      
+      // Activate first tab if available
+      if (availableProducts.length > 0) {
+        switchProductTab(0);
+      }
+    }
+
+
+    // Function to update tab indicator for filtered products
+    function updateTabIndicatorForFiltered(tabIndex) {
+      const tabButton = document.querySelectorAll('.tab-button')[tabIndex];
+      const availableProducts = getAvailableProducts();
+      
+      if (tabIndex >= availableProducts.length) return;
+      
+      const product = availableProducts[tabIndex];
+      const icon = getProductIcon(product.type);
+      
+      // Check if this tab has complete required data
+      const salesCount = document.getElementById(`product-sales-${tabIndex}`).value;
+      const samplingCount = document.getElementById(`product-sampling-${tabIndex}`).value;
+      
+      // Check if ALL required fields are complete
+      let hasCompleteData = false;
+      
+      // Sales and sampling counts are always required
+      if (salesCount !== '' && samplingCount !== '') {
+        hasCompleteData = true;
+      }
+      
+      if (hasCompleteData) {
+        tabButton.classList.add('has-data');
+        tabButton.innerHTML = `✅ ${icon} ${product.name}`;
+      } else {
+        tabButton.classList.remove('has-data');
+        tabButton.innerHTML = `${icon} ${product.name}`;
+      }
+    }
+
+    form.addEventListener('submit', async function (event) {
+      event.preventDefault(); // Prevent default form submission
+
+      submitButton.disabled = true; // Disable button to prevent multiple submissions
+      messageDiv.textContent = 'Getting location...';
+      messageDiv.className = ''; // Reset class
+
+      // Try to get location, but don't fail if it's not available
+      try {
+        await getLocation();
+      } catch (locationError) {
+        console.log('Location could not be obtained:', locationError);
+        // Set placeholder values to indicate GPS failure
+        latitudeInput.value = 'GPS_FAILED';
+        longitudeInput.value = 'GPS_FAILED';
+        messageDiv.textContent = 'Location unavailable, proceeding with registration...';
+      }
+
+      try {
+        const formData = new FormData(form);
+        const params = new URLSearchParams();
+        for (const pair of formData) {
+          params.append(pair[0], pair[1]);
+        }
+
+        // Add product sales data
+        const productSales = collectProductData();
+
+        // Validate that at least one product has sales data
+        if (!validateProductSales(productSales)) {
+          submitButton.disabled = false; // Re-enable button when validation fails
+          return;
+        }
+
+        params.append('productInventory', JSON.stringify(productSales));
+
+        messageDiv.textContent = 'Registering...';
+
+        // IMPORTANT: Replace 'YOUR_DEPLOYED_WEB_APP_URL' with your actual GAS Web App URL
+        const response = await fetch('YOUR_DEPLOYED_WEB_APP_URL', {
+          method: 'POST',
+          body: params,
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        });
+
+        const data = await response.json();
+        if (data.status === 'success') {
+          messageDiv.textContent = data.message;
+          messageDiv.className = ''; // Success class is default (no error class)
+          
+          // Clear form but keep Name and Area values
+          const nameValue = nameSelect.value;
+          const areaValue = areaSelect.value;
+          
+          form.reset(); // Reset main form
+          clearProductForms(); // Clear all product form data
+          
+          // Restore Name and Area values
+          nameSelect.value = nameValue;
+          areaSelect.value = areaValue;
+          
+          // Re-populate stores and branches based on the kept area selection
+          if (areaValue) {
+            populateStoresByArea();
+          }
+        } else {
+          messageDiv.textContent = 'Error: ' + data.message;
+          messageDiv.className = 'error'; // Add error class
+        }
+      } catch (error) {
+        console.error('Error during registration process:', error);
+        if (messageDiv.textContent === 'Getting location...') { // Only if location failed or prior
+          messageDiv.textContent = messageDiv.textContent + ' Please try again.'; // Append more info if needed
+        } else {
+          messageDiv.textContent = 'An error occurred during registration. Please try again.';
+        }
+        messageDiv.className = 'error';
+      } finally {
+        submitButton.disabled = false; // Re-enable button
+      }
+    });
+  </script>
+</body>
+
+</html>

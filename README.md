@@ -1,1 +1,193 @@
-# sales_report
+# Inventory Report System
+
+A Google Apps Script (GAS) based inventory reporting system that captures inventory data with location tracking and geocoding capabilities.
+
+## Features
+
+- **Location-based Inventory Tracking**: Automatically captures GPS coordinates and converts them to readable addresses
+- **Multi-field Data Capture**: Records comprehensive inventory information including counts, expiration dates, and notes
+- **Dynamic Dropdowns**: Load member names, areas, stores, and branches from Google Sheets
+- **Real-time Validation**: Client and server-side validation for data integrity
+- **Mobile-friendly Interface**: Responsive design optimized for mobile devices
+- **Comprehensive Testing**: Full test suite with unit and integration tests
+
+## Data Captured
+
+The system creates one record per product with inventory data. Each record contains:
+
+### Required Fields
+- **Name**: User name (from Member sheet)
+- **Area**: Selected area (from Area sheet)
+- **Store**: Selected store (from Store sheet)
+- **Branch**: Selected branch (based on store selection)
+- **Location**: GPS coordinates (automatic)
+- **Product Inventory**: At least one product must have inventory data
+
+### Optional Fields
+- **Note**: General notes
+
+### Product-Specific Fields (per product tab)
+- **Bottle Count**: Number of inventory bottles for this product
+- **Carton Count**: Number of inventory cartons for this product
+- **Expiration Date**: Product expiration date (calendar picker)
+- **Product Note**: Product-specific notes
+
+### Automatic Fields
+- **Timestamp**: Automatic timestamp
+- **Address**: Geocoded address from GPS coordinates
+
+## Google Sheets Structure
+
+The system requires the following sheets in your Google Spreadsheet:
+
+### Record Sheet
+Main data storage with 15 columns (one record per product):
+1. Timestamp
+2. Name
+3. Area
+4. Store
+5. Branch
+6. Latitude
+7. Longitude
+8. Address
+9. Note
+10. Product Type
+11. Product Name
+12. Bottle Count
+13. Carton Count
+14. Expiration Date
+15. Product Note
+
+### Member Sheet
+- **Column B**: Member names (starting from row 2)
+
+### Area Sheet
+- **Column A**: Area names (starting from row 2)
+
+### Store Sheet
+- **Column A**: Store names (starting from row 2)
+- **Column B**: Area names (starting from row 2)
+- **Column C**: Branch names (starting from row 2)
+
+### Product Sheet
+- **Column A**: Product types (starting from row 2)
+- **Column B**: Product names (starting from row 2)
+
+## Setup Instructions
+
+### 1. Google Apps Script Setup
+1. Create a new Google Apps Script project
+2. Copy the contents of `Code.gs` to your script
+3. Add `Index.html` as an HTML file
+4. Deploy as a web application
+
+### 2. Google Sheets Setup
+1. Create a new Google Spreadsheet
+2. Create the required sheets: Record, Member, Area, Store, Product
+3. Populate the Member, Area, Store, and Product sheets with your data
+4. Note the spreadsheet ID from the URL
+
+### 3. Script Properties Configuration
+Set the following script properties in Google Apps Script:
+
+```
+SpreadSheet_ID: Your Google Sheets ID
+Record_Sheet_Name: Name of your main record sheet
+Member_Sheet_Name: Name of your member sheet (default: 'Member')
+Area_Sheet_Name: Name of your area sheet (default: 'Area')
+Store_Sheet_Name: Name of your store sheet (default: 'Store')
+Product_Sheet_Name: Name of your product sheet (default: 'Product')
+Maps_API_KEY: Your Google Maps Geocoding API key
+```
+
+### 4. Google Maps API Setup
+1. Enable the Google Maps Geocoding API in Google Cloud Console
+2. Create an API key
+3. Add the API key to script properties
+
+### 5. Web App Deployment
+1. Deploy the script as a web application
+2. Set execute permissions appropriately
+3. Copy the web app URL
+4. Update the URL in `Index.html` (replace 'YOUR_DEPLOYED_WEB_APP_URL')
+
+## Usage
+
+1. Access the deployed web application URL
+2. Fill in all required fields:
+   - Select your name from the dropdown
+   - Choose the area
+   - Select store and branch
+   - Add general notes if needed
+   - Use product tabs to enter inventory for each product (at least one required)
+   - For each product: enter bottle/carton counts, expiration date, and product notes
+3. Click "Register" to submit the data
+4. The system will automatically capture your location and save all data to the spreadsheet
+
+## Testing
+
+The system includes comprehensive tests. To run tests:
+
+```javascript
+// Run all tests
+runAllTests()
+
+// Run specific test categories
+testGetMemberList()
+testGetAreaList()
+testGetStoreList()
+testDoPostValidInput()
+
+// Setup test configuration
+setupTestProperties()
+```
+
+## Security Features
+
+- **API Key Protection**: Google Maps API key stored securely in Script Properties
+- **Input Validation**: Both client-side and server-side validation
+- **Error Handling**: Graceful error handling with user feedback
+- **Location Privacy**: GPS coordinates used only for address lookup
+
+## Mobile Optimization
+
+- Responsive design that works on mobile devices
+- Touch-friendly interface elements
+- Optimized for various screen sizes
+- Fast loading and minimal data usage
+
+## Error Handling
+
+The system includes robust error handling for:
+- Network connectivity issues
+- GPS/location access problems
+- Google Sheets access errors
+- Invalid form data
+- API rate limiting
+
+## Browser Compatibility
+
+- Modern mobile browsers (Chrome, Safari, Firefox)
+- Desktop browsers
+- Requires JavaScript enabled
+- Requires location services permission
+
+## Development
+
+The codebase includes:
+- **Code.gs**: Server-side Google Apps Script functions
+- **Index.html**: Client-side interface with embedded JavaScript/CSS
+- **Tests.gs**: Comprehensive test suite
+- **CLAUDE.md**: Technical documentation for developers
+
+## Support
+
+For technical issues:
+1. Check the browser console for JavaScript errors
+2. Verify all required script properties are set
+3. Ensure Google Sheets permissions are correct
+4. Confirm Google Maps API key is valid and has proper permissions
+
+## License
+
+This project is provided as-is for inventory tracking purposes.
