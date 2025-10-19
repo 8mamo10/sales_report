@@ -1,11 +1,11 @@
-# Inventory Report System
+# Sales Report System
 
-A Google Apps Script (GAS) based inventory reporting system that captures inventory data with location tracking and geocoding capabilities.
+A Google Apps Script (GAS) based sales reporting system that records sales data with location tracking and geocoding capabilities.
 
 ## Features
 
-- **Location-based Inventory Tracking**: Automatically captures GPS coordinates and converts them to readable addresses
-- **Multi-field Data Capture**: Records comprehensive inventory information including counts, expiration dates, and notes
+- **Location-based Sales Tracking**: Automatically captures GPS coordinates and converts them to readable addresses
+- **Multi-field Data Capture**: Records comprehensive sales information including sales counts, sampling counts, and notes
 - **Dynamic Dropdowns**: Load member names, areas, stores, and branches from Google Sheets
 - **Real-time Validation**: Client and server-side validation for data integrity
 - **Mobile-friendly Interface**: Responsive design optimized for mobile devices
@@ -13,7 +13,7 @@ A Google Apps Script (GAS) based inventory reporting system that captures invent
 
 ## Data Captured
 
-The system creates one record per product with inventory data. Each record contains:
+The system creates one record per product with sales data. Each record contains:
 
 ### Required Fields
 - **Name**: User name (from Member sheet)
@@ -21,15 +21,14 @@ The system creates one record per product with inventory data. Each record conta
 - **Store**: Selected store (from Store sheet)
 - **Branch**: Selected branch (based on store selection)
 - **Location**: GPS coordinates (automatic)
-- **Product Inventory**: At least one product must have inventory data
+- **Product Sales**: At least one product must have sales data
 
 ### Optional Fields
 - **Note**: General notes
 
 ### Product-Specific Fields (per product tab)
-- **Bottle Count**: Number of inventory bottles for this product
-- **Carton Count**: Number of inventory cartons for this product
-- **Expiration Date**: Product expiration date (calendar picker)
+- **Sales Count**: Number of bottles sold for this product
+- **Sampling Count**: Number of cups sampled for this product
 - **Product Note**: Product-specific notes
 
 ### Automatic Fields
@@ -41,7 +40,7 @@ The system creates one record per product with inventory data. Each record conta
 The system requires the following sheets in your Google Spreadsheet:
 
 ### Record Sheet
-Main data storage with 15 columns (one record per product):
+Main data storage with 14 columns (one record per product):
 1. Timestamp
 2. Name
 3. Area
@@ -53,10 +52,9 @@ Main data storage with 15 columns (one record per product):
 9. Note
 10. Product Type
 11. Product Name
-12. Bottle Count
-13. Carton Count
-14. Expiration Date
-15. Product Note
+12. Sales Count
+13. Sampling Count
+14. Product Note
 
 ### Member Sheet
 - **Column B**: Member names (starting from row 2)
@@ -119,8 +117,8 @@ Maps_API_KEY: Your Google Maps Geocoding API key
    - Choose the area
    - Select store and branch
    - Add general notes if needed
-   - Use product tabs to enter inventory for each product (at least one required)
-   - For each product: enter bottle/carton counts, expiration date, and product notes
+   - Use product tabs to enter sales data for each product (at least one required)
+   - For each product: enter sales counts, sampling counts, and product notes
 3. Click "Register" to submit the data
 4. The system will automatically capture your location and save all data to the spreadsheet
 
@@ -190,4 +188,4 @@ For technical issues:
 
 ## License
 
-This project is provided as-is for inventory tracking purposes.
+This project is provided as-is for sales tracking purposes.
