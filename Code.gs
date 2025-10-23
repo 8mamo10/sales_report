@@ -6,8 +6,23 @@ function formatTimestamp(date) {
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
   const seconds = String(date.getSeconds()).padStart(2, '0');
-  
+
   return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+}
+
+// Function to format date from YYYY-MM-DD to DD/MM/YYYY
+function formatDateToDDMMYYYY(dateString) {
+  if (!dateString) return '';
+
+  // Parse YYYY-MM-DD format
+  const parts = dateString.split('-');
+  if (parts.length !== 3) return dateString; // Return as-is if not in expected format
+
+  const year = parts[0];
+  const month = parts[1];
+  const day = parts[2];
+
+  return `${day}/${month}/${year}`;
 }
 
 function doPost(e) {
@@ -96,6 +111,9 @@ function doPost(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
   
+  // Format sampling date to DD/MM/YYYY
+  const formattedSamplingDate = formatDateToDDMMYYYY(samplingDate);
+
   // Prepare all rows for batch insert (much faster than individual appendRow calls)
   const rowsToInsert = productInventory.map(product => [
     formattedTimestamp,
@@ -107,7 +125,7 @@ function doPost(e) {
     finalLongitude,
     address,
     note,
-    samplingDate,
+    formattedSamplingDate,
     product.type,
     product.name,
     product.salesCount || 0,
