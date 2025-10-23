@@ -26,12 +26,12 @@ function doPost(e) {
   // Get data sent via POST request
   const name = e.parameter.name;
   const area = e.parameter.area || '';
-  const samplingDate = e.parameter.samplingDate || '';
   const latitude = e.parameter.latitude;
   const longitude = e.parameter.longitude;
   const store = e.parameter.store || '';
   const branch = e.parameter.branch || '';
   const note = e.parameter.note || '';
+  const samplingDate = e.parameter.samplingDate || '';
   const productInventoryJSON = e.parameter.productInventory || '[]';
   
   // Parse product inventory data
@@ -101,13 +101,13 @@ function doPost(e) {
     formattedTimestamp,
     name,
     area,
-    samplingDate,
     store,
     branch,
     finalLatitude,
     finalLongitude,
     address,
     note,
+    samplingDate,
     product.type,
     product.name,
     product.salesCount || 0,

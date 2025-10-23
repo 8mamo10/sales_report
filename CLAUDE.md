@@ -24,7 +24,7 @@ This is a Google Apps Script (GAS) based sales reporting system that records sal
 1. User submits sales data via web form with geolocation
 2. `doPost` validates all required parameters (name, area, samplingDate, coordinates, store, branch, product sales)
 3. System geocodes coordinates to readable address
-4. Creates one record per product: [timestamp, name, area, samplingDate, store, branch, latitude, longitude, address, note, productType, productName, salesCount, samplingCount, productNote]
+4. Creates one record per product: [timestamp, name, area, store, branch, latitude, longitude, address, note, samplingDate, productType, productName, salesCount, samplingCount, productNote]
 
 ### Google Sheets Structure
 
@@ -93,13 +93,13 @@ The Record sheet contains 15 columns (one record per product):
 1. **Timestamp**: Automatic timestamp
 2. **Name**: User name from Member sheet (column B)
 3. **Area**: Selected area from Area sheet (column A)
-4. **Sampling Date**: Sampling date for all products (user-entered, defaults to today, common to all products)
-5. **Store**: Selected store from Store sheet (column A)
-6. **Branch**: Selected branch from Store sheet (column B)
-7. **Latitude**: GPS coordinates
-8. **Longitude**: GPS coordinates
-9. **Address**: Geocoded address from coordinates
-10. **Note**: General notes (optional free text)
+4. **Store**: Selected store from Store sheet (column A)
+5. **Branch**: Selected branch from Store sheet (column B)
+6. **Latitude**: GPS coordinates
+7. **Longitude**: GPS coordinates
+8. **Address**: Geocoded address from coordinates
+9. **Note**: General notes (optional free text)
+10. **Sampling Date**: Sampling date for all products (user-entered, defaults to today, common to all products)
 11. **Product Type**: Product type from Product sheet (column A)
 12. **Product Name**: Product name from Product sheet (column B)
 13. **Sales Count**: Number of bottles sold

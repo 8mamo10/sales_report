@@ -45,13 +45,13 @@ Main data storage with 15 columns (one record per product):
 1. Timestamp
 2. Name
 3. Area
-4. Sampling Date
-5. Store
-6. Branch
-7. Latitude
-8. Longitude
-9. Address
-10. Note
+4. Store
+5. Branch
+6. Latitude
+7. Longitude
+8. Address
+9. Note
+10. Sampling Date
 11. Product Type
 12. Product Name
 13. Sales Count
