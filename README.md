@@ -18,6 +18,7 @@ The system creates one record per product with sales data. Each record contains:
 ### Required Fields
 - **Name**: User name (from Member sheet)
 - **Area**: Selected area (from Area sheet)
+- **Sampling Date**: Sampling date for all products (defaults to today, can be changed)
 - **Store**: Selected store (from Store sheet)
 - **Branch**: Selected branch (based on store selection)
 - **Location**: GPS coordinates (automatic)
@@ -40,21 +41,22 @@ The system creates one record per product with sales data. Each record contains:
 The system requires the following sheets in your Google Spreadsheet:
 
 ### Record Sheet
-Main data storage with 14 columns (one record per product):
+Main data storage with 15 columns (one record per product):
 1. Timestamp
 2. Name
 3. Area
-4. Store
-5. Branch
-6. Latitude
-7. Longitude
-8. Address
-9. Note
-10. Product Type
-11. Product Name
-12. Sales Count
-13. Sampling Count
-14. Product Note
+4. Sampling Date
+5. Store
+6. Branch
+7. Latitude
+8. Longitude
+9. Address
+10. Note
+11. Product Type
+12. Product Name
+13. Sales Count
+14. Sampling Count
+15. Product Note
 
 ### Member Sheet
 - **Column B**: Member names (starting from row 2)
@@ -117,6 +119,7 @@ Maps_API_KEY: Your Google Maps Geocoding API key
    - Choose the area
    - Select store and branch
    - Add general notes if needed
+   - In the Product Sales section, select or modify the sampling date (defaults to today, common to all products)
    - Use product tabs to enter sales data for each product (at least one required)
    - For each product: enter sales counts, sampling counts, and product notes
 3. Click "Register" to submit the data

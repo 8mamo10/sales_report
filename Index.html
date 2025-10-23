@@ -208,7 +208,6 @@
         <option value="">🌍 Loading areas...</option>
       </select><br>
 
-
       <label for="store">Store:</label>
       <select id="store" name="store" required>
         <option value="">🏪 Loading stores...</option>
@@ -229,6 +228,10 @@
     <!-- Product Sales Section -->
     <div id="productSection" class="product-section">
       <h2>Product Sales</h2>
+
+      <label for="samplingDate">Sampling Date:</label>
+      <input type="date" id="samplingDate" name="samplingDate" required><br>
+
       <div id="productTabs" class="product-tabs">
         <div id="productTabButtons" class="tab-buttons">
           <!-- Product tabs will be dynamically loaded -->
@@ -509,6 +512,15 @@
       // Initially disable store and branch selects
       storeSelect.disabled = true;
       branchSelect.disabled = true;
+
+      // Set default sampling date to today
+      const samplingDateInput = document.getElementById('samplingDate');
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      const todayStr = `${yyyy}-${mm}-${dd}`;
+      samplingDateInput.value = todayStr;
     });
 
     // Function to get geolocation
@@ -817,6 +829,10 @@
 
         params.append('productInventory', JSON.stringify(productSales));
 
+        // Add sampling date
+        const samplingDate = document.getElementById('samplingDate').value;
+        params.append('samplingDate', samplingDate);
+
         messageDiv.textContent = 'Registering...';
 
         // IMPORTANT: Replace 'YOUR_DEPLOYED_WEB_APP_URL' with your actual GAS Web App URL
@@ -833,16 +849,18 @@
           messageDiv.textContent = data.message;
           messageDiv.className = ''; // Success class is default (no error class)
           
-          // Clear form but keep Name and Area values
+          // Clear form but keep Name, Area, and Sampling Date values
           const nameValue = nameSelect.value;
           const areaValue = areaSelect.value;
-          
+          const samplingDateValue = document.getElementById('samplingDate').value;
+
           form.reset(); // Reset main form
           clearProductForms(); // Clear all product form data
-          
-          // Restore Name and Area values
+
+          // Restore Name, Area, and Sampling Date values
           nameSelect.value = nameValue;
           areaSelect.value = areaValue;
+          document.getElementById('samplingDate').value = samplingDateValue;
           
           // Re-populate stores and branches based on the kept area selection
           if (areaValue) {

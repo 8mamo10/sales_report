@@ -26,6 +26,7 @@ function doPost(e) {
   // Get data sent via POST request
   const name = e.parameter.name;
   const area = e.parameter.area || '';
+  const samplingDate = e.parameter.samplingDate || '';
   const latitude = e.parameter.latitude;
   const longitude = e.parameter.longitude;
   const store = e.parameter.store || '';
@@ -42,7 +43,7 @@ function doPost(e) {
     productInventory = [];
   }
 
-  if (!name || !area || !latitude || !longitude || !store || !branch) {
+  if (!name || !area || !samplingDate || !latitude || !longitude || !store || !branch) {
     return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: 'Missing parameters' }))
       .setMimeType(ContentService.MimeType.JSON);
   }
@@ -97,19 +98,20 @@ function doPost(e) {
   
   // Prepare all rows for batch insert (much faster than individual appendRow calls)
   const rowsToInsert = productInventory.map(product => [
-    formattedTimestamp, 
-    name, 
-    area, 
-    store, 
-    branch, 
-    finalLatitude, 
-    finalLongitude, 
-    address, 
+    formattedTimestamp,
+    name,
+    area,
+    samplingDate,
+    store,
+    branch,
+    finalLatitude,
+    finalLongitude,
+    address,
     note,
     product.type,
     product.name,
-    product.salesCount || 0, 
-    product.samplingCount || 0, 
+    product.salesCount || 0,
+    product.samplingCount || 0,
     product.note || ''
   ]);
   

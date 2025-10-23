@@ -22,13 +22,13 @@ This is a Google Apps Script (GAS) based sales reporting system that records sal
 ### Data Flow
 
 1. User submits sales data via web form with geolocation
-2. `doPost` validates all required parameters (name, area, coordinates, store, branch, product sales)
+2. `doPost` validates all required parameters (name, area, samplingDate, coordinates, store, branch, product sales)
 3. System geocodes coordinates to readable address
-4. Creates one record per product: [timestamp, name, area, store, branch, latitude, longitude, address, note, productType, productName, salesCount, samplingCount, productNote]
+4. Creates one record per product: [timestamp, name, area, samplingDate, store, branch, latitude, longitude, address, note, productType, productName, salesCount, samplingCount, productNote]
 
 ### Google Sheets Structure
 
-- **Record Sheet**: Sales records (14 columns, one record per product)
+- **Record Sheet**: Sales records (15 columns, one record per product)
 - **Member Sheet**: Employee names in column B (starting row 2)
 - **Area Sheet**: Area names in column A (starting row 2)
 - **Store Sheet**: Store names (column A), area names (column B), and branch names (column C) starting row 2
@@ -69,7 +69,7 @@ Maps_API_KEY: Google Maps Geocoding API key
 
 ## Key Implementation Details
 
-- **Parameter Validation**: Basic parameters (name, area, latitude, longitude, store, branch) plus at least one product sales required
+- **Parameter Validation**: Basic parameters (name, area, samplingDate, latitude, longitude, store, branch) plus at least one product sales required
 - **Error Handling**: Graceful degradation when geocoding fails (still records sales)
 - **Security**: API keys stored in Script Properties, not hardcoded
 - **Client-Side**: Uses navigator.geolocation with fallback error handling
@@ -89,21 +89,22 @@ Tests are designed to work in both configured and unconfigured environments.
 
 ## Current Data Structure
 
-The Record sheet contains 14 columns (one record per product):
+The Record sheet contains 15 columns (one record per product):
 1. **Timestamp**: Automatic timestamp
 2. **Name**: User name from Member sheet (column B)
 3. **Area**: Selected area from Area sheet (column A)
-4. **Store**: Selected store from Store sheet (column A)
-5. **Branch**: Selected branch from Store sheet (column B)
-6. **Latitude**: GPS coordinates
-7. **Longitude**: GPS coordinates
-8. **Address**: Geocoded address from coordinates
-9. **Note**: General notes (optional free text)
-10. **Product Type**: Product type from Product sheet (column A)
-11. **Product Name**: Product name from Product sheet (column B)
-12. **Sales Count**: Number of bottles sold
-13. **Sampling Count**: Number of cups sampled
-14. **Product Note**: Product-specific notes (optional free text)
+4. **Sampling Date**: Sampling date for all products (user-entered, defaults to today, common to all products)
+5. **Store**: Selected store from Store sheet (column A)
+6. **Branch**: Selected branch from Store sheet (column B)
+7. **Latitude**: GPS coordinates
+8. **Longitude**: GPS coordinates
+9. **Address**: Geocoded address from coordinates
+10. **Note**: General notes (optional free text)
+11. **Product Type**: Product type from Product sheet (column A)
+12. **Product Name**: Product name from Product sheet (column B)
+13. **Sales Count**: Number of bottles sold
+14. **Sampling Count**: Number of cups sampled
+15. **Product Note**: Product-specific notes (optional free text)
 
 ## Product Management
 
