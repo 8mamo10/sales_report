@@ -60,12 +60,12 @@ runPerformanceTest()
 ### Required Script Properties
 ```
 SpreadSheet_ID: Google Sheets ID for data storage
-Sales_Record_Sheet_Name: Main sales records sheet name
+Sales_Record_Sheet_Name: Main sales records sheet name (default: 'Sales Record')
+Sampling_Record_Sheet_Name: Sampling activity records sheet name (default: 'Sampling Record')
 Member_Sheet_Name: Sheet containing employee names (default: 'Member')
 Area_Sheet_Name: Sheet containing area names (default: 'Area')
 Store_Sheet_Name: Sheet containing store/branch data (default: 'Store')
 Product_Sheet_Name: Sheet containing product data (default: 'Product')
-Sampling_Sheet_Name: Sheet containing sampling activity data (default: 'Sampling')
 Maps_API_KEY: Google Maps Geocoding API key
 ```
 

@@ -33,10 +33,7 @@ function doPost(e) {
   }
 
   // Specify the sheet name
-  const recordSheetName = PropertiesService.getScriptProperties().getProperty('Sales_Record_Sheet_Name');
-  if (!recordSheetName) {
-    throw new Error("Sales Record Sheet Name is not set in Script Properties.");
-  }
+  const recordSheetName = PropertiesService.getScriptProperties().getProperty('Sales_Record_Sheet_Name') || 'Sales Record';
 
   // Get data sent via POST request
   const name = e.parameter.name;
@@ -152,7 +149,7 @@ function doPost(e) {
 
   // Handle sampling activities if present
   if (samplingActivities && samplingActivities.length > 0) {
-    const samplingSheetName = PropertiesService.getScriptProperties().getProperty('Sampling_Sheet_Name') || 'Sampling';
+    const samplingSheetName = PropertiesService.getScriptProperties().getProperty('Sampling_Record_Sheet_Name') || 'Sampling Record';
     let samplingSheet = ss.getSheetByName(samplingSheetName);
 
     // Create sampling sheet if it doesn't exist

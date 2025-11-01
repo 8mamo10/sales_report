@@ -109,12 +109,12 @@ Set the following script properties in Google Apps Script:
 
 ```
 SpreadSheet_ID: Your Google Sheets ID
-Sales_Record_Sheet_Name: Name of your main sales record sheet
+Sales_Record_Sheet_Name: Name of your main sales record sheet (default: 'Sales Record')
+Sampling_Record_Sheet_Name: Name of your sampling record sheet (default: 'Sampling Record')
 Member_Sheet_Name: Name of your member sheet (default: 'Member')
 Area_Sheet_Name: Name of your area sheet (default: 'Area')
 Store_Sheet_Name: Name of your store sheet (default: 'Store')
 Product_Sheet_Name: Name of your product sheet (default: 'Product')
-Sampling_Sheet_Name: Name of your sampling sheet (default: 'Sampling')
 Maps_API_KEY: Your Google Maps Geocoding API key
 ```
 
