@@ -33,9 +33,9 @@ function doPost(e) {
   }
 
   // Specify the sheet name
-  const recordSheetName = PropertiesService.getScriptProperties().getProperty('Record_Sheet_Name');
+  const recordSheetName = PropertiesService.getScriptProperties().getProperty('Sales_Record_Sheet_Name');
   if (!recordSheetName) {
-    throw new Error("Record Sheet Name is not set in Script Properties.");
+    throw new Error("Sales Record Sheet Name is not set in Script Properties.");
   }
 
   // Get data sent via POST request
