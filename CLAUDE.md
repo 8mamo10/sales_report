@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a Google Apps Script (GAS) based sales reporting system that records sales data with location tracking. The system consists of:
 
 - **Code.gs**: Main server-side functions for handling form submissions, geocoding, and data management
-- **Index.html**: Client-side web interface for sales reporting
+- **Index.html**: Client-side web interface for sales reporting and sampling activity tracking
 - **Tests.gs**: Comprehensive unit tests for all major functions
 
 ## Architecture
@@ -33,6 +33,7 @@ This is a Google Apps Script (GAS) based sales reporting system that records sal
 - **Area Sheet**: Area names in column A (starting row 2)
 - **Store Sheet**: Store names (column A), area names (column B), and branch names (column C) starting row 2
 - **Product Sheet**: Product types (column A) and product names (column B) starting row 2
+- **Sampling Sheet**: Sampling activity records (13 columns, auto-created if needed)
 
 ## Development Commands
 
@@ -114,3 +115,13 @@ The system includes a comprehensive product sales feature:
 - **Individual Tracking**: Each product can have separate sales/sampling counts
 - **Per-Product Records**: Creates one record per product with sales data
 - **Validation**: Requires at least one product to have sales data before submission
+
+## Sampling Activity Management
+
+The system includes a separate sampling activity tracking feature:
+- **Dynamic Entries**: Users can add multiple sampling activity entries
+- **Optional Product Selection**: Products can be specified or left unspecified
+- **Cups Served & Bottles Used**: Track both cups served and sample bottles consumed
+- **Separate Sheet**: Sampling activities are stored in a dedicated "Sampling" sheet
+- **Auto-Creation**: Sampling sheet is automatically created if it doesn't exist
+- **Optional Data**: Sampling activities are completely optional and don't affect sales data submission

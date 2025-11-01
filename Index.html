@@ -191,6 +191,52 @@
       color: #dc3545;
       /* Error color */
     }
+
+    /* Sampling Activity Styles */
+    .sampling-activity-entry {
+      padding: 15px;
+      margin-bottom: 15px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      background-color: #f8f9fa;
+      position: relative;
+    }
+
+    .sampling-activity-entry label {
+      font-size: 0.9em;
+      margin-bottom: 5px;
+    }
+
+    .sampling-activity-entry input,
+    .sampling-activity-entry select {
+      margin-bottom: 10px;
+      padding: 8px;
+      font-size: 0.9em;
+    }
+
+    .remove-sampling-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      font-size: 1.2em;
+      line-height: 1;
+      padding: 0;
+    }
+
+    .remove-sampling-btn:hover {
+      background-color: #c82333;
+    }
+
+    #addSamplingActivityBtn:hover {
+      background-color: #218838;
+    }
   </style>
 </head>
 
@@ -244,6 +290,21 @@
       </div>
     </div>
 
+    <!-- Sampling Activity Section -->
+    <div id="samplingActivitySection" class="product-section">
+      <h2>Sampling Activity</h2>
+
+      <label>Sampling:</label><br>
+
+      <div id="samplingActivityContainer">
+        <!-- Sampling activity entries will be dynamically added here -->
+      </div>
+
+      <button type="button" id="addSamplingActivityBtn" style="width: 100%; margin-top: 10px; background-color: #28a745;">
+        + Add Sampling Activity
+      </button>
+    </div>
+
     <div style="margin-top: 30px;">
       <button type="submit" id="submitButton" form="salesForm">Register</button>
     </div>
@@ -263,6 +324,7 @@
     let storesData = {};
     let productsData = [];
     let activeProductTab = null;
+    let samplingActivityCounter = 0;
 
     // Function to load names from server
     function loadNames() {
@@ -524,6 +586,94 @@
       const todayStr = `${yyyy}-${mm}-${dd}`;
       samplingDateInput.value = todayStr;
     });
+
+    // Sampling Activity Functions
+    function addSamplingActivity() {
+      const container = document.getElementById('samplingActivityContainer');
+      const entryId = samplingActivityCounter++;
+
+      const entryDiv = document.createElement('div');
+      entryDiv.className = 'sampling-activity-entry';
+      entryDiv.id = `sampling-entry-${entryId}`;
+      entryDiv.innerHTML = `
+        <button type="button" class="remove-sampling-btn" onclick="removeSamplingActivity(${entryId})">×</button>
+
+        <label for="sampling-product-${entryId}">Product:</label>
+        <select id="sampling-product-${entryId}" class="sampling-product-select">
+          <option value="">Select product (optional)</option>
+        </select>
+
+        <label for="sampling-cups-${entryId}">Cups Served:</label>
+        <input type="number" id="sampling-cups-${entryId}" min="0" placeholder="0">
+
+        <label for="sampling-bottles-${entryId}">Sample Bottles Used:</label>
+        <input type="number" id="sampling-bottles-${entryId}" min="0" placeholder="0">
+      `;
+
+      container.appendChild(entryDiv);
+
+      // Populate product dropdown
+      populateSamplingProductDropdown(entryId);
+    }
+
+    function populateSamplingProductDropdown(entryId) {
+      const select = document.getElementById(`sampling-product-${entryId}`);
+      if (!select) return;
+
+      // Clear existing options except the first one
+      select.innerHTML = '<option value="">Select product (optional)</option>';
+
+      // Add all products
+      productsData.forEach((product, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        const icon = getProductIcon(product.type);
+        option.textContent = `${icon} ${product.type} - ${product.name}`;
+        select.appendChild(option);
+      });
+    }
+
+    function removeSamplingActivity(entryId) {
+      const entry = document.getElementById(`sampling-entry-${entryId}`);
+      if (entry) {
+        entry.remove();
+      }
+    }
+
+    function collectSamplingActivities() {
+      const container = document.getElementById('samplingActivityContainer');
+      const entries = container.querySelectorAll('.sampling-activity-entry');
+      const activities = [];
+
+      entries.forEach(entry => {
+        const entryId = entry.id.replace('sampling-entry-', '');
+        const productIndex = document.getElementById(`sampling-product-${entryId}`).value;
+        const cupsServed = document.getElementById(`sampling-cups-${entryId}`).value;
+        const bottlesUsed = document.getElementById(`sampling-bottles-${entryId}`).value;
+
+        // Only include if at least one field has data
+        if (productIndex || cupsServed || bottlesUsed) {
+          activities.push({
+            productIndex: productIndex !== '' ? parseInt(productIndex) : null,
+            productType: productIndex !== '' ? productsData[productIndex].type : '',
+            productName: productIndex !== '' ? productsData[productIndex].name : '',
+            cupsServed: cupsServed || 0,
+            bottlesUsed: bottlesUsed || 0
+          });
+        }
+      });
+
+      return activities;
+    }
+
+    function clearSamplingActivities() {
+      const container = document.getElementById('samplingActivityContainer');
+      container.innerHTML = '';
+      samplingActivityCounter = 0;
+    }
+
+    // Add event listener for add sampling activity button
+    document.getElementById('addSamplingActivityBtn').addEventListener('click', addSamplingActivity);
 
     // Function to get geolocation
     function getLocation() {
@@ -835,6 +985,10 @@
         const samplingDate = document.getElementById('samplingDate').value;
         params.append('samplingDate', samplingDate);
 
+        // Add sampling activities data
+        const samplingActivities = collectSamplingActivities();
+        params.append('samplingActivities', JSON.stringify(samplingActivities));
+
         messageDiv.textContent = 'Registering...';
 
         // IMPORTANT: Replace 'YOUR_DEPLOYED_WEB_APP_URL' with your actual GAS Web App URL
@@ -858,6 +1012,7 @@
 
           form.reset(); // Reset main form
           clearProductForms(); // Clear all product form data
+          clearSamplingActivities(); // Clear all sampling activities
 
           // Restore Name, Area, and Sampling Date values
           nameSelect.value = nameValue;

@@ -48,7 +48,8 @@ function doPost(e) {
   const note = e.parameter.note || '';
   const samplingDate = e.parameter.samplingDate || '';
   const productInventoryJSON = e.parameter.productInventory || '[]';
-  
+  const samplingActivitiesJSON = e.parameter.samplingActivities || '[]';
+
   // Parse product inventory data
   let productInventory = [];
   try {
@@ -56,6 +57,15 @@ function doPost(e) {
   } catch (err) {
     console.error('Failed to parse product inventory:', err);
     productInventory = [];
+  }
+
+  // Parse sampling activities data
+  let samplingActivities = [];
+  try {
+    samplingActivities = JSON.parse(samplingActivitiesJSON);
+  } catch (err) {
+    console.error('Failed to parse sampling activities:', err);
+    samplingActivities = [];
   }
 
   if (!name || !area || !samplingDate || !latitude || !longitude || !store || !branch) {
@@ -138,6 +148,46 @@ function doPost(e) {
     const startRow = sheet.getLastRow() + 1;
     const range = sheet.getRange(startRow, 1, rowsToInsert.length, rowsToInsert[0].length);
     range.setValues(rowsToInsert);
+  }
+
+  // Handle sampling activities if present
+  if (samplingActivities && samplingActivities.length > 0) {
+    const samplingSheetName = PropertiesService.getScriptProperties().getProperty('Sampling_Sheet_Name') || 'Sampling';
+    let samplingSheet = ss.getSheetByName(samplingSheetName);
+
+    // Create sampling sheet if it doesn't exist
+    if (!samplingSheet) {
+      samplingSheet = ss.insertSheet(samplingSheetName);
+      // Add headers
+      samplingSheet.getRange(1, 1, 1, 10).setValues([[
+        'Timestamp', 'Name', 'Area', 'Store', 'Branch', 'Latitude', 'Longitude', 'Address',
+        'Sampling Date', 'Product Type', 'Product Name', 'Cups Served', 'Sample Bottles Used'
+      ]]);
+    }
+
+    // Prepare sampling activity rows
+    const samplingRows = samplingActivities.map(activity => [
+      formattedTimestamp,
+      name,
+      area,
+      store,
+      branch,
+      finalLatitude,
+      finalLongitude,
+      address,
+      formattedSamplingDate,
+      activity.productType || 'N/A',
+      activity.productName || 'N/A',
+      activity.cupsServed || 0,
+      activity.bottlesUsed || 0
+    ]);
+
+    // Insert sampling activity rows
+    if (samplingRows.length > 0) {
+      const samplingStartRow = samplingSheet.getLastRow() + 1;
+      const samplingRange = samplingSheet.getRange(samplingStartRow, 1, samplingRows.length, samplingRows[0].length);
+      samplingRange.setValues(samplingRows);
+    }
   }
 
   return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'Finish registration' }))

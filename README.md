@@ -6,6 +6,7 @@ A Google Apps Script (GAS) based sales reporting system that records sales data 
 
 - **Location-based Sales Tracking**: Automatically captures GPS coordinates and converts them to readable addresses
 - **Multi-field Data Capture**: Records comprehensive sales information including sales counts, sampling counts, and notes
+- **Sampling Activity Tracking**: Separate section to track sampling activities with cups served and sample bottles used
 - **Dynamic Dropdowns**: Load member names, areas, stores, and branches from Google Sheets
 - **Real-time Validation**: Client and server-side validation for data integrity
 - **Mobile-friendly Interface**: Responsive design optimized for mobile devices
@@ -73,6 +74,22 @@ Main data storage with 15 columns (one record per product):
 - **Column A**: Product types (starting from row 2)
 - **Column B**: Product names (starting from row 2)
 
+### Sampling Sheet (Auto-created)
+Stores sampling activity data with 13 columns:
+1. Timestamp
+2. Name
+3. Area
+4. Store
+5. Branch
+6. Latitude
+7. Longitude
+8. Address
+9. Sampling Date
+10. Product Type
+11. Product Name
+12. Cups Served
+13. Sample Bottles Used
+
 ## Setup Instructions
 
 ### 1. Google Apps Script Setup
@@ -122,8 +139,13 @@ Maps_API_KEY: Your Google Maps Geocoding API key
    - In the Product Sales section, select or modify the sampling date (defaults to today, common to all products)
    - Use product tabs to enter sales data for each product (at least one required)
    - For each product: enter sales counts, sampling counts, and product notes
-3. Click "Register" to submit the data
-4. The system will automatically capture your location and save all data to the spreadsheet
+3. Optionally, add sampling activities:
+   - Click "+ Add Sampling Activity" to add a new entry
+   - Select product (optional), enter cups served and sample bottles used
+   - Can add multiple sampling activities
+   - Click the × button to remove an activity
+4. Click "Register" to submit the data
+5. The system will automatically capture your location and save all data to the spreadsheet
 
 ## Testing
 
