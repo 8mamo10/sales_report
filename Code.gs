@@ -156,8 +156,8 @@ function doPost(e) {
     if (!samplingSheet) {
       samplingSheet = ss.insertSheet(samplingSheetName);
       // Add headers
-      samplingSheet.getRange(1, 1, 1, 10).setValues([[
-        'Timestamp', 'Name', 'Area', 'Store', 'Branch', 'Latitude', 'Longitude', 'Address',
+      samplingSheet.getRange(1, 1, 1, 14).setValues([[
+        'Timestamp', 'Name', 'Area', 'Store', 'Branch', 'Latitude', 'Longitude', 'Address', 'Note',
         'Sampling Date', 'Product Type', 'Product Name', 'Cups Served', 'Sample Bottles Used'
       ]]);
     }
@@ -172,6 +172,7 @@ function doPost(e) {
       finalLatitude,
       finalLongitude,
       address,
+      note,
       formattedSamplingDate,
       activity.productType || 'N/A',
       activity.productName || 'N/A',

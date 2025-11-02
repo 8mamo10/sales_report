@@ -75,7 +75,7 @@ Main data storage with 15 columns (one record per product):
 - **Column B**: Product names (starting from row 2)
 
 ### Sampling Sheet (Auto-created)
-Stores sampling activity data with 13 columns:
+Stores sampling activity data with 14 columns:
 1. Timestamp
 2. Name
 3. Area
@@ -84,11 +84,12 @@ Stores sampling activity data with 13 columns:
 6. Latitude
 7. Longitude
 8. Address
-9. Sampling Date
-10. Product Type
-11. Product Name
-12. Cups Served
-13. Sample Bottles Used
+9. Note
+10. Sampling Date
+11. Product Type
+12. Product Name
+13. Cups Served
+14. Sample Bottles Used
 
 ## Setup Instructions
 
