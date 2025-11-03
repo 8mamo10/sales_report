@@ -91,6 +91,9 @@
       flex-wrap: wrap;
       gap: 5px;
       margin-bottom: 15px;
+    }
+
+    .tab-buttons:not(:empty) {
       border-bottom: 2px solid #e0e0e0;
     }
 
@@ -130,9 +133,12 @@
 
     .tab-content {
       padding: 15px;
-      border: 1px solid #e0e0e0;
       border-radius: 0 4px 4px 4px;
       background-color: #fff;
+    }
+
+    .tab-content:has(.product-form) {
+      border: 1px solid #e0e0e0;
     }
 
     .product-form {
