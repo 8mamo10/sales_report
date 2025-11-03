@@ -1018,11 +1018,14 @@
           nameSelect.value = nameValue;
           areaSelect.value = areaValue;
           document.getElementById('samplingDate').value = samplingDateValue;
-          
+
           // Re-populate stores and branches based on the kept area selection
           if (areaValue) {
             populateStoresByArea();
           }
+
+          // Clear product tabs since store/branch were reset
+          updateProductTabs();
         } else {
           messageDiv.textContent = 'Error: ' + data.message;
           messageDiv.className = 'error'; // Add error class
