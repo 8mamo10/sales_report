@@ -655,8 +655,12 @@
         const cupsServed = document.getElementById(`sampling-cups-${entryId}`).value;
         const bottlesUsed = document.getElementById(`sampling-bottles-${entryId}`).value;
 
-        // Only include if at least one field has data
-        if (productIndex || cupsServed || bottlesUsed) {
+        // Only include if at least one field has meaningful data
+        const hasProductIndex = productIndex !== '' && productIndex !== null;
+        const hasCupsServed = cupsServed !== '' && cupsServed !== null && cupsServed !== '0';
+        const hasBottlesUsed = bottlesUsed !== '' && bottlesUsed !== null && bottlesUsed !== '0';
+
+        if (hasProductIndex || hasCupsServed || hasBottlesUsed) {
           activities.push({
             productIndex: productIndex !== '' ? parseInt(productIndex) : null,
             productType: productIndex !== '' ? productsData[productIndex].type : '',

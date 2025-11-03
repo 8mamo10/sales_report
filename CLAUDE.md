@@ -33,7 +33,7 @@ This is a Google Apps Script (GAS) based sales reporting system that records sal
 - **Area Sheet**: Area names in column A (starting row 2)
 - **Store Sheet**: Store names (column A), area names (column B), and branch names (column C) starting row 2
 - **Product Sheet**: Product types (column A) and product names (column B) starting row 2
-- **Sampling Sheet**: Sampling activity records (14 columns, auto-created if needed)
+- **Sampling Sheet**: Sampling activity records (14 columns)
 
 ## Development Commands
 

@@ -150,17 +150,7 @@ function doPost(e) {
   // Handle sampling activities if present
   if (samplingActivities && samplingActivities.length > 0) {
     const samplingSheetName = PropertiesService.getScriptProperties().getProperty('Sampling_Record_Sheet_Name') || 'Sampling Record';
-    let samplingSheet = ss.getSheetByName(samplingSheetName);
-
-    // Create sampling sheet if it doesn't exist
-    if (!samplingSheet) {
-      samplingSheet = ss.insertSheet(samplingSheetName);
-      // Add headers
-      samplingSheet.getRange(1, 1, 1, 14).setValues([[
-        'Timestamp', 'Name', 'Area', 'Store', 'Branch', 'Latitude', 'Longitude', 'Address', 'Note',
-        'Sampling Date', 'Product Type', 'Product Name', 'Cups Served', 'Sample Bottles Used'
-      ]]);
-    }
+    const samplingSheet = ss.getSheetByName(samplingSheetName);
 
     // Prepare sampling activity rows
     const samplingRows = samplingActivities.map(activity => [
