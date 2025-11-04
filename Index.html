@@ -510,6 +510,7 @@
     // Handle branch selection to update product tabs
     branchSelect.addEventListener('change', function () {
       updateProductTabs(); // Update products when branch changes
+      updateAllSamplingProductDropdowns(); // Update sampling activity dropdowns
     });
 
     // Handle area selection to populate stores and reset branches
@@ -522,6 +523,7 @@
     storeSelect.addEventListener('change', function () {
       populateBranchesByAreaAndStore();
       updateProductTabs(); // Update products when store changes
+      updateAllSamplingProductDropdowns(); // Update sampling activity dropdowns
     });
 
     // Function to get product icon based on type
@@ -627,13 +629,29 @@
       // Clear existing options except the first one
       select.innerHTML = '<option value="">Select product (optional)</option>';
 
-      // Add all products
-      productsData.forEach((product, index) => {
+      // Get available products for the selected store/branch
+      const availableProducts = getAvailableProducts();
+
+      // Add only available products
+      availableProducts.forEach((product) => {
+        const originalIndex = productsData.indexOf(product);
         const option = document.createElement('option');
-        option.value = index;
+        option.value = originalIndex;
         const icon = getProductIcon(product.type);
         option.textContent = `${icon} ${product.type} - ${product.name}`;
         select.appendChild(option);
+      });
+    }
+
+    // Function to update all sampling product dropdowns
+    function updateAllSamplingProductDropdowns() {
+      const container = document.getElementById('samplingActivityContainer');
+      if (!container) return;
+
+      const entries = container.querySelectorAll('.sampling-activity-entry');
+      entries.forEach(entry => {
+        const entryId = entry.id.replace('sampling-entry-', '');
+        populateSamplingProductDropdown(entryId);
       });
     }
 
