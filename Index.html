@@ -787,10 +787,13 @@
       availableProducts.forEach((product, tabIndex) => {
         const salesCount = document.getElementById(`product-sales-${tabIndex}`).value;
         const samplingCount = document.getElementById(`product-sampling-${tabIndex}`).value;
-        
+
+        // Determine the label based on product type
+        const salesLabel = product.type.toLowerCase().includes('rtd') ? 'No. of bottles sold' : 'No. of units sold';
+
         // Sales and sampling counts are always required
         if (!salesCount || salesCount === '') {
-          validationErrors.push(`${product.name}: No. of bottles sold is required`);
+          validationErrors.push(`${product.name}: ${salesLabel} is required`);
         }
         if (!samplingCount || samplingCount === '') {
           validationErrors.push(`${product.name}: No. of cartons sold is required`);
@@ -908,14 +911,18 @@
         const productForm = document.createElement('div');
         productForm.className = 'product-form';
         productForm.id = `product-form-${tabIndex}`;
+
+        // Determine the label based on product type
+        const salesLabel = product.type.toLowerCase().includes('rtd') ? 'No. of bottles sold' : 'No. of units sold';
+
         productForm.innerHTML = `
           <h3>${product.type} - ${product.name}</h3>
-          <label for="product-sales-${tabIndex}">No. of bottles sold: <span style="color: red;">*</span></label>
+          <label for="product-sales-${tabIndex}">${salesLabel}: <span style="color: red;">*</span></label>
           <input type="number" id="product-sales-${tabIndex}" min="0" placeholder="-" required>
 
           <label for="product-sampling-${tabIndex}">No. of cartons sold: <span style="color: red;">*</span></label>
           <input type="number" id="product-sampling-${tabIndex}" min="0" placeholder="-" required>
-          
+
           <label for="product-note-${tabIndex}">Product Note:</label>
           <textarea id="product-note-${tabIndex}" rows="2" placeholder="Product-specific notes..."></textarea>
         `;
