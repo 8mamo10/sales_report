@@ -42,7 +42,7 @@ The system creates one record per product with sales data. Each record contains:
 The system requires the following sheets in your Google Spreadsheet:
 
 ### Record Sheet
-Main data storage with 15 columns (one record per product):
+Main data storage with 17 columns (one record per product):
 1. Timestamp
 2. Name
 3. Area
@@ -58,6 +58,8 @@ Main data storage with 15 columns (one record per product):
 13. Sales Count
 14. Sampling Count
 15. Product Note
+16. Cups Served (from Sampling Activity, blank if none)
+17. Sample Bottles Used (from Sampling Activity, blank if none)
 
 ### Member Sheet
 - **Column B**: Member names (starting from row 2)
@@ -74,22 +76,6 @@ Main data storage with 15 columns (one record per product):
 - **Column A**: Product types (starting from row 2)
 - **Column B**: Product names (starting from row 2)
 
-### Sampling Sheet
-Stores sampling activity data with 14 columns:
-1. Timestamp
-2. Name
-3. Area
-4. Store
-5. Branch
-6. Latitude
-7. Longitude
-8. Address
-9. Note
-10. Sampling Date
-11. Product Type
-12. Product Name
-13. Cups Served
-14. Sample Bottles Used
 
 ## Setup Instructions
 
@@ -111,7 +97,6 @@ Set the following script properties in Google Apps Script:
 ```
 SpreadSheet_ID: Your Google Sheets ID
 Sales_Record_Sheet_Name: Name of your main sales record sheet (default: 'Sales Record')
-Sampling_Record_Sheet_Name: Name of your sampling record sheet (default: 'Sampling Record')
 Member_Sheet_Name: Name of your member sheet (default: 'Member')
 Area_Sheet_Name: Name of your area sheet (default: 'Area')
 Store_Sheet_Name: Name of your store sheet (default: 'Store')

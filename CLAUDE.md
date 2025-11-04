@@ -28,12 +28,11 @@ This is a Google Apps Script (GAS) based sales reporting system that records sal
 
 ### Google Sheets Structure
 
-- **Record Sheet**: Sales records (15 columns, one record per product)
+- **Record Sheet**: Sales records (17 columns, one record per product, includes sampling activity data)
 - **Member Sheet**: Employee names in column B (starting row 2)
 - **Area Sheet**: Area names in column A (starting row 2)
 - **Store Sheet**: Store names (column A), area names (column B), and branch names (column C) starting row 2
 - **Product Sheet**: Product types (column A) and product names (column B) starting row 2
-- **Sampling Sheet**: Sampling activity records (14 columns)
 
 ## Development Commands
 
@@ -61,7 +60,6 @@ runPerformanceTest()
 ```
 SpreadSheet_ID: Google Sheets ID for data storage
 Sales_Record_Sheet_Name: Main sales records sheet name (default: 'Sales Record')
-Sampling_Record_Sheet_Name: Sampling activity records sheet name (default: 'Sampling Record')
 Member_Sheet_Name: Sheet containing employee names (default: 'Member')
 Area_Sheet_Name: Sheet containing area names (default: 'Area')
 Store_Sheet_Name: Sheet containing store/branch data (default: 'Store')
@@ -83,7 +81,7 @@ Maps_API_KEY: Google Maps Geocoding API key
 The test suite covers:
 - API integration with proper mocking
 - Parameter validation and error cases
-- Data structure integrity (15-column format, one record per product)
+- Data structure integrity (17-column format, one record per product)
 - Configuration validation
 - Performance benchmarking
 
@@ -91,7 +89,7 @@ Tests are designed to work in both configured and unconfigured environments.
 
 ## Current Data Structure
 
-The Record sheet contains 15 columns (one record per product):
+The Record sheet contains 17 columns (one record per product):
 1. **Timestamp**: Automatic timestamp
 2. **Name**: User name from Member sheet (column B)
 3. **Area**: Selected area from Area sheet (column A)
@@ -107,6 +105,8 @@ The Record sheet contains 15 columns (one record per product):
 13. **Sales Count**: Number of bottles sold
 14. **Sampling Count**: Number of cups sampled
 15. **Product Note**: Product-specific notes (optional free text)
+16. **Cups Served**: Number of cups served (from Sampling Activity, blank if no activity for this product)
+17. **Sample Bottles Used**: Number of sample bottles used (from Sampling Activity, blank if no activity for this product)
 
 ## Product Management
 
@@ -119,10 +119,10 @@ The system includes a comprehensive product sales feature:
 
 ## Sampling Activity Management
 
-The system includes a separate sampling activity tracking feature:
+The system includes a sampling activity tracking feature integrated into the Sales Record:
 - **Dynamic Entries**: Users can add multiple sampling activity entries
 - **Optional Product Selection**: Products can be specified or left unspecified
 - **Cups Served & Bottles Used**: Track both cups served and sample bottles consumed
-- **Separate Sheet**: Sampling activities are stored in a dedicated "Sampling" sheet
-- **Auto-Creation**: Sampling sheet is automatically created if it doesn't exist
+- **Integrated Data**: Sampling activities are matched to products and stored in the same Sales Record row
 - **Optional Data**: Sampling activities are completely optional and don't affect sales data submission
+- **Efficient Storage**: If a product has a matching sampling activity, cups served and bottles used are populated; otherwise these columns are left blank
