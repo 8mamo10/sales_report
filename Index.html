@@ -661,10 +661,11 @@
         const hasBottlesUsed = bottlesUsed !== '' && bottlesUsed !== null && bottlesUsed !== '0';
 
         if (hasProductIndex || hasCupsServed || hasBottlesUsed) {
+          const parsedProductIndex = productIndex !== '' ? parseInt(productIndex) : null;
           activities.push({
-            productIndex: productIndex !== '' ? parseInt(productIndex) : null,
-            productType: productIndex !== '' ? productsData[productIndex].type : '',
-            productName: productIndex !== '' ? productsData[productIndex].name : '',
+            productIndex: parsedProductIndex,
+            productType: parsedProductIndex !== null && productsData[parsedProductIndex] ? productsData[parsedProductIndex].type : '',
+            productName: parsedProductIndex !== null && productsData[parsedProductIndex] ? productsData[parsedProductIndex].name : '',
             cupsServed: cupsServed || 0,
             bottlesUsed: bottlesUsed || 0
           });

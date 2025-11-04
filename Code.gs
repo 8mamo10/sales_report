@@ -149,9 +149,6 @@ function doPost(e) {
 
   // Handle sampling activities if present
   if (samplingActivities && samplingActivities.length > 0) {
-    const samplingSheetName = PropertiesService.getScriptProperties().getProperty('Sampling_Record_Sheet_Name') || 'Sampling Record';
-    const samplingSheet = ss.getSheetByName(samplingSheetName);
-
     // Prepare sampling activity rows
     const samplingRows = samplingActivities.map(activity => [
       formattedTimestamp,
@@ -170,8 +167,15 @@ function doPost(e) {
       activity.bottlesUsed || 0
     ]);
 
-    // Insert sampling activity rows
+    // Only access sheet if we have rows to insert
     if (samplingRows.length > 0) {
+      const samplingSheetName = PropertiesService.getScriptProperties().getProperty('Sampling_Record_Sheet_Name') || 'Sampling Record';
+      const samplingSheet = ss.getSheetByName(samplingSheetName);
+
+      if (!samplingSheet) {
+        throw new Error(`Sampling sheet "${samplingSheetName}" not found. Please create the sheet first.`);
+      }
+
       const samplingStartRow = samplingSheet.getLastRow() + 1;
       const samplingRange = samplingSheet.getRange(samplingStartRow, 1, samplingRows.length, samplingRows[0].length);
       samplingRange.setValues(samplingRows);
