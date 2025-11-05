@@ -36,8 +36,8 @@ function doPost(e) {
   // Specify the sheet name
   const recordSheetName =
     PropertiesService.getScriptProperties().getProperty(
-      "Sales_Record_Sheet_Name"
-    ) || "Sales Record";
+      "Record_Sheet_Name"
+    ) || "Record";
 
   // Get data sent via POST request
   const name = e.parameter.name;

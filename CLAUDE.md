@@ -59,7 +59,7 @@ runPerformanceTest()
 ### Required Script Properties
 ```
 SpreadSheet_ID: Google Sheets ID for data storage
-Sales_Record_Sheet_Name: Main sales records sheet name (default: 'Sales Record')
+Record_Sheet_Name: Main record sheet name (default: 'Record')
 Member_Sheet_Name: Sheet containing employee names (default: 'Member')
 Area_Sheet_Name: Sheet containing area names (default: 'Area')
 Store_Sheet_Name: Sheet containing store/branch data (default: 'Store')

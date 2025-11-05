@@ -96,7 +96,7 @@ Set the following script properties in Google Apps Script:
 
 ```
 SpreadSheet_ID: Your Google Sheets ID
-Sales_Record_Sheet_Name: Name of your main sales record sheet (default: 'Sales Record')
+Record_Sheet_Name: Name of your main record sheet (default: 'Record')
 Member_Sheet_Name: Name of your member sheet (default: 'Member')
 Area_Sheet_Name: Name of your area sheet (default: 'Area')
 Store_Sheet_Name: Name of your store sheet (default: 'Store')
