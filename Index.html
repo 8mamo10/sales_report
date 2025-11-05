@@ -682,11 +682,19 @@
 
       // Populate product dropdown
       populateSamplingProductDropdown(entryId);
+
+      // Add change listener to refresh all dropdowns when selection changes
+      document.getElementById(`sampling-product-${entryId}`).addEventListener('change', function() {
+        updateAllSamplingProductDropdowns();
+      });
     }
 
     function populateSamplingProductDropdown(entryId) {
       const select = document.getElementById(`sampling-product-${entryId}`);
       if (!select) return;
+
+      // Get currently selected value to preserve it
+      const currentValue = select.value;
 
       // Clear existing options except the first one
       select.innerHTML = '<option value="">Select product (optional)</option>';
@@ -694,15 +702,40 @@
       // Get available products for the selected store/branch
       const availableProducts = getAvailableProducts();
 
-      // Add only available products
+      // Get already selected products in other Sampling Activity entries
+      const container = document.getElementById('samplingActivityContainer');
+      const entries = container.querySelectorAll('.sampling-activity-entry');
+      const selectedProducts = new Set();
+
+      entries.forEach(entry => {
+        const otherId = entry.id.replace('sampling-entry-', '');
+        if (otherId !== entryId.toString()) {
+          const otherSelect = document.getElementById(`sampling-product-${otherId}`);
+          if (otherSelect && otherSelect.value !== '') {
+            selectedProducts.add(otherSelect.value);
+          }
+        }
+      });
+
+      // Add only available products that are not already selected
       availableProducts.forEach((product) => {
         const originalIndex = productsData.indexOf(product);
-        const option = document.createElement('option');
-        option.value = originalIndex;
-        const icon = getProductIcon(product.type);
-        option.textContent = `${icon} ${product.type} - ${product.name}`;
-        select.appendChild(option);
+        const indexStr = originalIndex.toString();
+
+        // Skip if already selected in another entry (unless it's the current value)
+        if (!selectedProducts.has(indexStr) || indexStr === currentValue) {
+          const option = document.createElement('option');
+          option.value = originalIndex;
+          const icon = getProductIcon(product.type);
+          option.textContent = `${icon} ${product.type} - ${product.name}`;
+          select.appendChild(option);
+        }
       });
+
+      // Restore the previously selected value if it still exists
+      if (currentValue !== '') {
+        select.value = currentValue;
+      }
     }
 
     // Function to update all sampling product dropdowns
@@ -764,6 +797,40 @@
     // Add event listener for add sampling activity button
     document.getElementById('addSamplingActivityBtn').addEventListener('click', addSamplingActivity);
 
+    // Helper function to get selected products in Sampling Activity
+    function getSelectedSamplingProducts() {
+      const container = document.getElementById('samplingActivityContainer');
+      const entries = container.querySelectorAll('.sampling-activity-entry');
+      const selectedProducts = new Set();
+
+      entries.forEach(entry => {
+        const entryId = entry.id.replace('sampling-entry-', '');
+        const select = document.getElementById(`sampling-product-${entryId}`);
+        if (select && select.value !== '') {
+          selectedProducts.add(select.value);
+        }
+      });
+
+      return selectedProducts;
+    }
+
+    // Helper function to get selected products in Stock Balance
+    function getSelectedStockProducts() {
+      const container = document.getElementById('stockBalanceContainer');
+      const entries = container.querySelectorAll('.stock-balance-entry');
+      const selectedProducts = new Set();
+
+      entries.forEach(entry => {
+        const entryId = entry.id.replace('stock-entry-', '');
+        const select = document.getElementById(`stock-product-${entryId}`);
+        if (select && select.value !== '') {
+          selectedProducts.add(select.value);
+        }
+      });
+
+      return selectedProducts;
+    }
+
     // Stock Balance Functions
     function addStockBalance() {
       const container = document.getElementById('stockBalanceContainer');
@@ -788,11 +855,19 @@
 
       // Populate product dropdown
       populateStockProductDropdown(entryId);
+
+      // Add change listener to refresh all dropdowns when selection changes
+      document.getElementById(`stock-product-${entryId}`).addEventListener('change', function() {
+        updateAllStockProductDropdowns();
+      });
     }
 
     function populateStockProductDropdown(entryId) {
       const select = document.getElementById(`stock-product-${entryId}`);
       if (!select) return;
+
+      // Get currently selected value to preserve it
+      const currentValue = select.value;
 
       // Clear existing options except the first one
       select.innerHTML = '<option value="">Select product</option>';
@@ -800,15 +875,40 @@
       // Get available products for the selected store/branch
       const availableProducts = getAvailableProducts();
 
-      // Add only available products
+      // Get already selected products in other Stock Balance entries
+      const container = document.getElementById('stockBalanceContainer');
+      const entries = container.querySelectorAll('.stock-balance-entry');
+      const selectedProducts = new Set();
+
+      entries.forEach(entry => {
+        const otherId = entry.id.replace('stock-entry-', '');
+        if (otherId !== entryId.toString()) {
+          const otherSelect = document.getElementById(`stock-product-${otherId}`);
+          if (otherSelect && otherSelect.value !== '') {
+            selectedProducts.add(otherSelect.value);
+          }
+        }
+      });
+
+      // Add only available products that are not already selected
       availableProducts.forEach((product) => {
         const originalIndex = productsData.indexOf(product);
-        const option = document.createElement('option');
-        option.value = originalIndex;
-        const icon = getProductIcon(product.type);
-        option.textContent = `${icon} ${product.type} - ${product.name}`;
-        select.appendChild(option);
+        const indexStr = originalIndex.toString();
+
+        // Skip if already selected in another entry (unless it's the current value)
+        if (!selectedProducts.has(indexStr) || indexStr === currentValue) {
+          const option = document.createElement('option');
+          option.value = originalIndex;
+          const icon = getProductIcon(product.type);
+          option.textContent = `${icon} ${product.type} - ${product.name}`;
+          select.appendChild(option);
+        }
       });
+
+      // Restore the previously selected value if it still exists
+      if (currentValue !== '') {
+        select.value = currentValue;
+      }
     }
 
     // Function to update all stock balance product dropdowns
