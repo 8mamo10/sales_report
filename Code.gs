@@ -50,6 +50,7 @@ function doPost(e) {
   const samplingDate = e.parameter.samplingDate || "";
   const productInventoryJSON = e.parameter.productInventory || "[]";
   const samplingActivitiesJSON = e.parameter.samplingActivities || "[]";
+  const stockBalancesJSON = e.parameter.stockBalances || "[]";
 
   // Parse product inventory data
   let productInventory = [];
@@ -67,6 +68,15 @@ function doPost(e) {
   } catch (err) {
     console.error("Failed to parse sampling activities:", err);
     samplingActivities = [];
+  }
+
+  // Parse stock balances data
+  let stockBalances = [];
+  try {
+    stockBalances = JSON.parse(stockBalancesJSON);
+  } catch (err) {
+    console.error("Failed to parse stock balances:", err);
+    stockBalances = [];
   }
 
   if (
@@ -161,11 +171,21 @@ function doPost(e) {
     });
   }
 
+  // Create a map of stock balances by product for quick lookup
+  const stockBalanceMap = {};
+  if (stockBalances && stockBalances.length > 0) {
+    stockBalances.forEach((balance) => {
+      const key = `${balance.productType}|${balance.productName}`;
+      stockBalanceMap[key] = balance.bottlesRemained || 0;
+    });
+  }
+
   // Prepare all rows for batch insert (much faster than individual appendRow calls)
   const rowsToInsert = productInventory.map((product) => {
     // Check if there's a matching sampling activity for this product
     const key = `${product.type}|${product.name}`;
     const samplingActivity = samplingActivityMap[key] || null;
+    const bottlesRemained = stockBalanceMap[key] || "";
 
     return [
       formattedTimestamp,
@@ -185,6 +205,7 @@ function doPost(e) {
       product.note || "",
       samplingActivity ? samplingActivity.cupsServed : "",
       samplingActivity ? samplingActivity.bottlesUsed : "",
+      bottlesRemained,
     ];
   });
 

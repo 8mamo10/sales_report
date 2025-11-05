@@ -243,6 +243,52 @@
     #addSamplingActivityBtn:hover {
       background-color: #218838;
     }
+
+    /* Stock Balance Styles */
+    .stock-balance-entry {
+      padding: 15px;
+      margin-bottom: 15px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      background-color: #f8f9fa;
+      position: relative;
+    }
+
+    .stock-balance-entry label {
+      font-size: 0.9em;
+      margin-bottom: 5px;
+    }
+
+    .stock-balance-entry input,
+    .stock-balance-entry select {
+      margin-bottom: 10px;
+      padding: 8px;
+      font-size: 0.9em;
+    }
+
+    .remove-stock-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      font-size: 1.2em;
+      line-height: 1;
+      padding: 0;
+    }
+
+    .remove-stock-btn:hover {
+      background-color: #c82333;
+    }
+
+    #addStockBalanceBtn:hover {
+      background-color: #0056b3;
+    }
   </style>
 </head>
 
@@ -307,6 +353,19 @@
           + Add Sampling Activity
         </button>
       </div>
+
+      <!-- Stock Balance Section (within Product Sales) -->
+      <div id="stockBalanceSection" style="margin-top: 30px;">
+        <label>Stock Balance:</label><br>
+
+        <div id="stockBalanceContainer">
+          <!-- Stock balance entries will be dynamically added here -->
+        </div>
+
+        <button type="button" id="addStockBalanceBtn" style="width: 80%; margin-top: 10px; margin-left: 0; background-color: #28a745; font-size: 0.9em; padding: 8px;">
+          + Add Stock Balance
+        </button>
+      </div>
     </div>
 
     <div style="margin-top: 30px;">
@@ -329,6 +388,7 @@
     let productsData = [];
     let activeProductTab = null;
     let samplingActivityCounter = 0;
+    let stockBalanceCounter = 0;
 
     // Function to load names from server
     function loadNames() {
@@ -511,6 +571,7 @@
     branchSelect.addEventListener('change', function () {
       updateProductTabs(); // Update products when branch changes
       updateAllSamplingProductDropdowns(); // Update sampling activity dropdowns
+      updateAllStockProductDropdowns(); // Update stock balance dropdowns
     });
 
     // Handle area selection to populate stores and reset branches
@@ -524,6 +585,7 @@
       populateBranchesByAreaAndStore();
       updateProductTabs(); // Update products when store changes
       updateAllSamplingProductDropdowns(); // Update sampling activity dropdowns
+      updateAllStockProductDropdowns(); // Update stock balance dropdowns
     });
 
     // Function to get product icon based on type
@@ -701,6 +763,106 @@
 
     // Add event listener for add sampling activity button
     document.getElementById('addSamplingActivityBtn').addEventListener('click', addSamplingActivity);
+
+    // Stock Balance Functions
+    function addStockBalance() {
+      const container = document.getElementById('stockBalanceContainer');
+      const entryId = stockBalanceCounter++;
+
+      const entryDiv = document.createElement('div');
+      entryDiv.className = 'stock-balance-entry';
+      entryDiv.id = `stock-entry-${entryId}`;
+      entryDiv.innerHTML = `
+        <button type="button" class="remove-stock-btn" onclick="removeStockBalance(${entryId})">×</button>
+
+        <label for="stock-product-${entryId}">Product:</label>
+        <select id="stock-product-${entryId}" class="stock-product-select">
+          <option value="">Select product</option>
+        </select>
+
+        <label for="stock-bottles-${entryId}">No. of bottles remained:</label>
+        <input type="number" id="stock-bottles-${entryId}" min="0" placeholder="0">
+      `;
+
+      container.appendChild(entryDiv);
+
+      // Populate product dropdown
+      populateStockProductDropdown(entryId);
+    }
+
+    function populateStockProductDropdown(entryId) {
+      const select = document.getElementById(`stock-product-${entryId}`);
+      if (!select) return;
+
+      // Clear existing options except the first one
+      select.innerHTML = '<option value="">Select product</option>';
+
+      // Get available products for the selected store/branch
+      const availableProducts = getAvailableProducts();
+
+      // Add only available products
+      availableProducts.forEach((product) => {
+        const originalIndex = productsData.indexOf(product);
+        const option = document.createElement('option');
+        option.value = originalIndex;
+        const icon = getProductIcon(product.type);
+        option.textContent = `${icon} ${product.type} - ${product.name}`;
+        select.appendChild(option);
+      });
+    }
+
+    // Function to update all stock balance product dropdowns
+    function updateAllStockProductDropdowns() {
+      const container = document.getElementById('stockBalanceContainer');
+      if (!container) return;
+
+      const entries = container.querySelectorAll('.stock-balance-entry');
+      entries.forEach(entry => {
+        const entryId = entry.id.replace('stock-entry-', '');
+        populateStockProductDropdown(entryId);
+      });
+    }
+
+    function removeStockBalance(entryId) {
+      const entry = document.getElementById(`stock-entry-${entryId}`);
+      if (entry) {
+        entry.remove();
+      }
+    }
+
+    function collectStockBalances() {
+      const container = document.getElementById('stockBalanceContainer');
+      const entries = container.querySelectorAll('.stock-balance-entry');
+      const stockBalances = [];
+
+      entries.forEach(entry => {
+        const entryId = entry.id.replace('stock-entry-', '');
+        const productIndex = document.getElementById(`stock-product-${entryId}`).value;
+        const bottlesRemained = document.getElementById(`stock-bottles-${entryId}`).value;
+
+        // Only include if both product and bottles are specified
+        if (productIndex !== '' && productIndex !== null && bottlesRemained !== '' && bottlesRemained !== null) {
+          const parsedProductIndex = parseInt(productIndex);
+          stockBalances.push({
+            productIndex: parsedProductIndex,
+            productType: productsData[parsedProductIndex] ? productsData[parsedProductIndex].type : '',
+            productName: productsData[parsedProductIndex] ? productsData[parsedProductIndex].name : '',
+            bottlesRemained: bottlesRemained || 0
+          });
+        }
+      });
+
+      return stockBalances;
+    }
+
+    function clearStockBalances() {
+      const container = document.getElementById('stockBalanceContainer');
+      container.innerHTML = '';
+      stockBalanceCounter = 0;
+    }
+
+    // Add event listener for add stock balance button
+    document.getElementById('addStockBalanceBtn').addEventListener('click', addStockBalance);
 
     // Function to get geolocation
     function getLocation() {
@@ -1023,6 +1185,10 @@
         const samplingActivities = collectSamplingActivities();
         params.append('samplingActivities', JSON.stringify(samplingActivities));
 
+        // Add stock balances data
+        const stockBalances = collectStockBalances();
+        params.append('stockBalances', JSON.stringify(stockBalances));
+
         messageDiv.textContent = 'Registering...';
 
         // IMPORTANT: Replace 'YOUR_DEPLOYED_WEB_APP_URL' with your actual GAS Web App URL
@@ -1047,6 +1213,7 @@
           form.reset(); // Reset main form
           clearProductForms(); // Clear all product form data
           clearSamplingActivities(); // Clear all sampling activities
+          clearStockBalances(); // Clear all stock balances
 
           // Restore Name, Area, and Sampling Date values
           nameSelect.value = nameValue;
