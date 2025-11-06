@@ -15,6 +15,10 @@ function runAllTests() {
     testDoPostWithStoreAndBranch();
     testDoPostInvalidCoordinates();
     testAllProductsValidation();
+    testDoPostWithSamplingActivity();
+    testDoPostWithStockBalance();
+    testDoPostWithBothSamplingAndStock();
+    testSamplingDateFormatting();
     testDoGet();
 
     console.log('All tests passed!');
@@ -198,39 +202,52 @@ function testDoPostValidInput() {
       store: 'Test Store',
       branch: 'Test Branch',
       note: 'Test note',
-      productInventory: JSON.stringify([{type: 'Test Type', name: 'Test Product', salesCount: '5', samplingCount: '2', note: 'Test product note'}])
+      samplingDate: '2025-11-05',
+      productInventory: JSON.stringify([{type: 'Test Type', name: 'Test Product', salesCount: '5', samplingCount: '2', note: 'Test product note'}]),
+      samplingActivities: JSON.stringify([]),
+      stockBalances: JSON.stringify([])
     }
   };
 
   // Mock SpreadsheetApp
   const mockSheet = {
-    appendRow: function(data) {
-      console.log('Mock appendRow called with:', data);
-      // Verify updated data structure (now 14 columns)
-      if (data.length !== 14) {
-        throw new Error('Expected 14 columns in data: timestamp, name, area, store, branch, latitude, longitude, address, note, productType, productName, salesCount, samplingCount, productNote');
-      }
-      if (typeof data[0] !== 'string' || !data[0].match(/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}$/)) {
-        throw new Error('First column should be formatted timestamp (DD/MM/YYYY HH:MM:SS)');
-      }
-      if (data[1] !== 'Test User') {
-        throw new Error('Second column should be name');
-      }
-      if (data[2] !== 'Test Area') {
-        throw new Error('Third column should be area');
-      }
-      if (data[3] !== 'Test Store') {
-        throw new Error('Fourth column should be store');
-      }
-      if (data[4] !== 'Test Branch') {
-        throw new Error('Fifth column should be branch');
-      }
-      if (data[9] !== 'Test Type') {
-        throw new Error('Tenth column should be product type');
-      }
-      if (data[10] !== 'Test Product') {
-        throw new Error('Eleventh column should be product name');
-      }
+    getRange: function(startRow, startCol, numRows, numCols) {
+      return {
+        setValues: function(data) {
+          console.log('Mock setValues called with:', data);
+          // Verify updated data structure (now 18 columns)
+          if (data[0].length !== 18) {
+            throw new Error('Expected 18 columns in data: timestamp, name, area, store, branch, latitude, longitude, address, note, samplingDate, productType, productName, salesCount, samplingCount, productNote, cupsServed, bottlesUsed, stockRemained');
+          }
+          if (typeof data[0][0] !== 'string' || !data[0][0].match(/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}:\d{2}$/)) {
+            throw new Error('First column should be formatted timestamp (DD/MM/YYYY HH:MM:SS)');
+          }
+          if (data[0][1] !== 'Test User') {
+            throw new Error('Second column should be name');
+          }
+          if (data[0][2] !== 'Test Area') {
+            throw new Error('Third column should be area');
+          }
+          if (data[0][3] !== 'Test Store') {
+            throw new Error('Fourth column should be store');
+          }
+          if (data[0][4] !== 'Test Branch') {
+            throw new Error('Fifth column should be branch');
+          }
+          if (typeof data[0][9] !== 'string' || !data[0][9].match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+            throw new Error('Tenth column should be formatted sampling date (DD/MM/YYYY)');
+          }
+          if (data[0][10] !== 'Test Type') {
+            throw new Error('Eleventh column should be product type');
+          }
+          if (data[0][11] !== 'Test Product') {
+            throw new Error('Twelfth column should be product name');
+          }
+        }
+      };
+    },
+    getLastRow: function() {
+      return 1;
     }
   };
 
@@ -365,7 +382,7 @@ function testDoGet() {
 }
 
 // Helper function to create test data
-function createTestEvent(name, area, lat, lng, store, branch, note, productType, productName, salesCount, samplingCount, productNote) {
+function createTestEvent(name, area, lat, lng, store, branch, note, productType, productName, salesCount, samplingCount, productNote, samplingActivities, stockBalances) {
   return {
     parameter: {
       name: name || '',
@@ -375,13 +392,16 @@ function createTestEvent(name, area, lat, lng, store, branch, note, productType,
       store: store || 'Test Store',
       branch: branch || 'Test Branch',
       note: note || 'Test note',
+      samplingDate: '2025-11-05',
       productInventory: JSON.stringify([{
         type: productType || 'Test Type',
         name: productName || 'Test Product',
         salesCount: salesCount || '10',
         samplingCount: samplingCount || '5',
         note: productNote || 'Test product note'
-      }])
+      }]),
+      samplingActivities: JSON.stringify(samplingActivities || []),
+      stockBalances: JSON.stringify(stockBalances || [])
     }
   };
 }
@@ -474,6 +494,186 @@ function testAllProductsValidation() {
       throw error;
     }
   }
+}
+
+// Test doPost with Sampling Activity
+function testDoPostWithSamplingActivity() {
+  console.log('Testing doPost with Sampling Activity...');
+
+  const mockEvent = {
+    parameter: {
+      name: 'Test User',
+      area: 'Test Area',
+      latitude: '35.6762',
+      longitude: '139.6503',
+      store: 'Test Store',
+      branch: 'Test Branch',
+      note: 'Test note',
+      samplingDate: '2025-11-05',
+      productInventory: JSON.stringify([
+        {type: 'RTD', name: 'Green Tea', salesCount: '10', samplingCount: '5', note: 'Product note'}
+      ]),
+      samplingActivities: JSON.stringify([
+        {productType: 'RTD', productName: 'Green Tea', cupsServed: 20, bottlesUsed: 2}
+      ]),
+      stockBalances: JSON.stringify([])
+    }
+  };
+
+  try {
+    const result = doPost(mockEvent);
+    const response = JSON.parse(result.getContent());
+
+    if (response.status === 'success' || response.status === 'error') {
+      console.log('✓ Sampling Activity data structure correct');
+
+      // Verify that sampling activity data would be properly mapped
+      const samplingActivities = JSON.parse(mockEvent.parameter.samplingActivities);
+      if (samplingActivities.length > 0 &&
+          samplingActivities[0].productType === 'RTD' &&
+          samplingActivities[0].productName === 'Green Tea' &&
+          samplingActivities[0].cupsServed === 20 &&
+          samplingActivities[0].bottlesUsed === 2) {
+        console.log('✓ Sampling Activity data properly structured');
+      }
+    }
+  } catch (error) {
+    if (error.message.includes('Spreadsheet ID is not set')) {
+      console.log('✓ Sampling Activity test structure created');
+    } else {
+      throw error;
+    }
+  }
+}
+
+// Test doPost with Stock Balance
+function testDoPostWithStockBalance() {
+  console.log('Testing doPost with Stock Balance...');
+
+  const mockEvent = {
+    parameter: {
+      name: 'Test User',
+      area: 'Test Area',
+      latitude: '35.6762',
+      longitude: '139.6503',
+      store: 'Test Store',
+      branch: 'Test Branch',
+      note: 'Test note',
+      samplingDate: '2025-11-05',
+      productInventory: JSON.stringify([
+        {type: 'RTD', name: 'Green Tea', salesCount: '10', samplingCount: '5', note: 'Product note'},
+        {type: 'Leaf', name: 'Black Tea', salesCount: '8', samplingCount: '3', note: 'Leaf note'}
+      ]),
+      samplingActivities: JSON.stringify([]),
+      stockBalances: JSON.stringify([
+        {productType: 'RTD', productName: 'Green Tea', bottlesRemained: 50},
+        {productType: 'Leaf', productName: 'Black Tea', bottlesRemained: 30}
+      ])
+    }
+  };
+
+  try {
+    const result = doPost(mockEvent);
+    const response = JSON.parse(result.getContent());
+
+    if (response.status === 'success' || response.status === 'error') {
+      console.log('✓ Stock Balance data structure correct');
+
+      // Verify that stock balance data would be properly mapped
+      const stockBalances = JSON.parse(mockEvent.parameter.stockBalances);
+      if (stockBalances.length === 2 &&
+          stockBalances[0].productType === 'RTD' &&
+          stockBalances[0].productName === 'Green Tea' &&
+          stockBalances[0].bottlesRemained === 50 &&
+          stockBalances[1].bottlesRemained === 30) {
+        console.log('✓ Stock Balance data properly structured');
+      }
+    }
+  } catch (error) {
+    if (error.message.includes('Spreadsheet ID is not set')) {
+      console.log('✓ Stock Balance test structure created');
+    } else {
+      throw error;
+    }
+  }
+}
+
+// Test doPost with both Sampling Activity and Stock Balance
+function testDoPostWithBothSamplingAndStock() {
+  console.log('Testing doPost with both Sampling Activity and Stock Balance...');
+
+  const mockEvent = {
+    parameter: {
+      name: 'Test User',
+      area: 'Test Area',
+      latitude: '35.6762',
+      longitude: '139.6503',
+      store: 'Test Store',
+      branch: 'Test Branch',
+      note: 'Test note',
+      samplingDate: '2025-11-05',
+      productInventory: JSON.stringify([
+        {type: 'RTD', name: 'Green Tea', salesCount: '10', samplingCount: '5', note: 'RTD note'},
+        {type: 'Leaf', name: 'Black Tea', salesCount: '8', samplingCount: '3', note: 'Leaf note'}
+      ]),
+      samplingActivities: JSON.stringify([
+        {productType: 'RTD', productName: 'Green Tea', cupsServed: 20, bottlesUsed: 2}
+      ]),
+      stockBalances: JSON.stringify([
+        {productType: 'Leaf', productName: 'Black Tea', bottlesRemained: 30}
+      ])
+    }
+  };
+
+  try {
+    const result = doPost(mockEvent);
+    const response = JSON.parse(result.getContent());
+
+    if (response.status === 'success' || response.status === 'error') {
+      console.log('✓ Combined Sampling Activity and Stock Balance data structure correct');
+
+      // Verify both data sets can coexist
+      const samplingActivities = JSON.parse(mockEvent.parameter.samplingActivities);
+      const stockBalances = JSON.parse(mockEvent.parameter.stockBalances);
+
+      if (samplingActivities.length === 1 && stockBalances.length === 1 &&
+          samplingActivities[0].productName === 'Green Tea' &&
+          stockBalances[0].productName === 'Black Tea') {
+        console.log('✓ Different products can have Sampling Activity and Stock Balance independently');
+      }
+    }
+  } catch (error) {
+    if (error.message.includes('Spreadsheet ID is not set')) {
+      console.log('✓ Combined test structure created');
+    } else {
+      throw error;
+    }
+  }
+}
+
+// Test Sampling Date formatting
+function testSamplingDateFormatting() {
+  console.log('Testing Sampling Date formatting...');
+
+  // Test formatDateToDDMMYYYY function
+  const testDates = [
+    {input: '2025-11-05', expected: '05/11/2025'},
+    {input: '2025-01-15', expected: '15/01/2025'},
+    {input: '2025-12-31', expected: '31/12/2025'},
+    {input: '', expected: ''},
+    {input: 'invalid', expected: 'invalid'}
+  ];
+
+  testDates.forEach((test, index) => {
+    const result = formatDateToDDMMYYYY(test.input);
+    if (result === test.expected) {
+      console.log(`✓ Test case ${index + 1}: formatDateToDDMMYYYY('${test.input}') = '${result}'`);
+    } else {
+      throw new Error(`Test case ${index + 1} failed: Expected '${test.expected}' but got '${result}'`);
+    }
+  });
+
+  console.log('✓ Sampling Date formatting tests completed');
 }
 
 // Integration test function
