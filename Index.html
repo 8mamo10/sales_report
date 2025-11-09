@@ -1277,7 +1277,7 @@
 
         params.append('productInventory', JSON.stringify(productSales));
 
-        // Add sampling date
+        // Add sampling date (already in YYYY-MM-DD format from date input)
         const samplingDate = document.getElementById('samplingDate').value;
         params.append('samplingDate', samplingDate);
 

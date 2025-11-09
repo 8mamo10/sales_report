@@ -156,8 +156,8 @@ function doPost(e) {
     ).setMimeType(ContentService.MimeType.JSON);
   }
 
-  // Format sampling date to DD/MM/YYYY
-  const formattedSamplingDate = formatDateToDDMMYYYY(samplingDate);
+  // Format sampling date to DD/MM/YYYY and add ' prefix to ensure it's treated as text
+  const formattedSamplingDate = "'" + formatDateToDDMMYYYY(samplingDate);
 
   // Create a map of sampling activities by product for quick lookup
   const samplingActivityMap = {};
