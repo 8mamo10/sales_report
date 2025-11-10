@@ -294,29 +294,29 @@
 
 <body>
   <div class="container">
-    <h1>PG Report</h1>
+    <h1 id="pageTitle">PG Report</h1>
     <form id="salesForm">
-      <label for="name">Your Name:</label>
+      <label for="name" id="labelName">Your Name:</label>
       <select id="name" name="name" required>
         <option value="">👤 Loading names...</option>
       </select><br>
 
-      <label for="area">Area:</label>
+      <label for="area" id="labelArea">Area:</label>
       <select id="area" name="area" required>
         <option value="">🌍 Loading areas...</option>
       </select><br>
 
-      <label for="store">Store:</label>
+      <label for="store" id="labelStore">Store:</label>
       <select id="store" name="store" required>
         <option value="">🏪 Loading stores...</option>
       </select><br>
 
-      <label for="branch">Branch:</label>
+      <label for="branch" id="labelBranch">Branch:</label>
       <select id="branch" name="branch" required>
         <option value="">🏢 Select store first</option>
       </select><br>
 
-      <label for="note">Note:</label>
+      <label for="note" id="labelNote">Note:</label>
       <textarea id="note" name="note" placeholder="Enter any additional notes..." rows="3"></textarea><br>
 
       <input type="hidden" id="latitude" name="latitude">
@@ -325,12 +325,12 @@
 
     <!-- Product Sales Section -->
     <div id="productSection" class="product-section">
-      <h2>Product Sales</h2>
+      <h2 id="productSalesTitle">Product Sales</h2>
 
-      <label for="samplingDate">Sampling Date:</label>
+      <label for="samplingDate" id="labelSamplingDate">Sampling Date:</label>
       <input type="date" id="samplingDate" name="samplingDate" required><br>
 
-      <label>Sales:</label><br>
+      <label id="labelSales">Sales:</label><br>
 
       <div id="productTabs" class="product-tabs">
         <div id="productTabButtons" class="tab-buttons">
@@ -343,7 +343,7 @@
 
       <!-- Sampling Activity Section (within Product Sales) -->
       <div id="samplingActivitySection" style="margin-top: 30px;">
-        <label>Sampling Activity:</label><br>
+        <label id="labelSamplingActivity">Sampling Activity:</label><br>
 
         <div id="samplingActivityContainer">
           <!-- Sampling activity entries will be dynamically added here -->
@@ -356,7 +356,7 @@
 
       <!-- Stock Balance Section (within Product Sales) -->
       <div id="stockBalanceSection" style="margin-top: 30px;">
-        <label>Stock Balance:</label><br>
+        <label id="labelStockBalance">Stock Balance:</label><br>
 
         <div id="stockBalanceContainer">
           <!-- Stock balance entries will be dynamically added here -->
@@ -390,6 +390,150 @@
     let samplingActivityCounter = 0;
     let stockBalanceCounter = 0;
 
+    // Get language from server-side template variable (defaults to "EN")
+    const LANGUAGE = "<?= language ?>" || "EN";
+
+    // Translation dictionary
+    const translations = {
+      EN: {
+        title: "PG Report",
+        yourName: "Your Name:",
+        area: "Area:",
+        store: "Store:",
+        branch: "Branch:",
+        note: "Note:",
+        notePlaceholder: "Enter any additional notes...",
+        productSales: "Product Sales",
+        samplingDate: "Sampling Date:",
+        sales: "Sales:",
+        samplingActivity: "Sampling Activity:",
+        addSamplingActivity: "+ Add Sampling Activity",
+        stockBalance: "Stock Balance:",
+        addStockBalance: "+ Add Stock Balance",
+        register: "Register",
+        loadingNames: "👤 Loading names...",
+        selectName: "👤 Select your name",
+        loadingAreas: "🌍 Loading areas...",
+        selectArea: "🌍 Select area",
+        loadingStores: "🏪 Loading stores...",
+        selectStore: "🏪 Select store",
+        selectStoreFirst: "🏢 Select store first",
+        selectAreaFirst: "🏢 Select area first",
+        selectBranch: "🏢 Select branch",
+        noBranchesAvailable: "🏢 No branches available",
+        failedToLoadNames: "❌ Failed to load names",
+        failedToLoadAreas: "❌ Failed to load areas",
+        failedToLoadStores: "❌ Failed to load stores",
+        product: "Product:",
+        selectProductOptional: "Select product (optional)",
+        selectProduct: "Select product",
+        cupsServed: "Cups Served:",
+        sampleBottlesUsed: "Sample Bottles Used:",
+        bottlesRemained: "No. of bottles remained:",
+        bottlesSold: "No. of bottles sold",
+        unitsSold: "No. of units sold",
+        cartonsSold: "No. of cartons sold",
+        productNote: "Product Note:",
+        productNotePlaceholder: "Product-specific notes...",
+        selectStoreBranchMessage: "Please select a store and branch to see available products.",
+        noProductsAvailable: "No products available for this store and branch combination.",
+        gettingLocation: "Getting location...",
+        registering: "Registering...",
+        finishRegistration: "Finish registration",
+        locationDenied: "Location access denied. Please allow location access in your browser settings.",
+        locationUnavailable: "Location information is unavailable.",
+        locationTimeout: "The request to get user location timed out.",
+        locationUnknownError: "An unknown error occurred while getting location.",
+        geolocationNotSupported: "Your browser does not support geolocation.",
+        locationUnavailableProceeding: "Location unavailable, proceeding with registration...",
+        registrationError: "An error occurred during registration. Please try again."
+      },
+      VN: {
+        title: "Báo cáo PG",
+        yourName: "Tên của bạn:",
+        area: "Khu vực:",
+        store: "Cửa hàng:",
+        branch: "Chi nhánh:",
+        note: "Ghi chú:",
+        notePlaceholder: "Nhập ghi chú bổ sung...",
+        productSales: "Bán hàng sản phẩm",
+        samplingDate: "Ngày lấy mẫu:",
+        sales: "Bán hàng:",
+        samplingActivity: "Hoạt động lấy mẫu:",
+        addSamplingActivity: "+ Thêm hoạt động lấy mẫu",
+        stockBalance: "Tồn kho:",
+        addStockBalance: "+ Thêm tồn kho",
+        register: "Đăng ký",
+        loadingNames: "👤 Đang tải tên...",
+        selectName: "👤 Chọn tên của bạn",
+        loadingAreas: "🌍 Đang tải khu vực...",
+        selectArea: "🌍 Chọn khu vực",
+        loadingStores: "🏪 Đang tải cửa hàng...",
+        selectStore: "🏪 Chọn cửa hàng",
+        selectStoreFirst: "🏢 Chọn cửa hàng trước",
+        selectAreaFirst: "🏢 Chọn khu vực trước",
+        selectBranch: "🏢 Chọn chi nhánh",
+        noBranchesAvailable: "🏢 Không có chi nhánh",
+        failedToLoadNames: "❌ Không tải được tên",
+        failedToLoadAreas: "❌ Không tải được khu vực",
+        failedToLoadStores: "❌ Không tải được cửa hàng",
+        product: "Sản phẩm:",
+        selectProductOptional: "Chọn sản phẩm (tùy chọn)",
+        selectProduct: "Chọn sản phẩm",
+        cupsServed: "Số cốc phục vụ:",
+        sampleBottlesUsed: "Số chai mẫu sử dụng:",
+        bottlesRemained: "Số chai còn lại:",
+        bottlesSold: "Số chai đã bán",
+        unitsSold: "Số đơn vị đã bán",
+        cartonsSold: "Số thùng đã bán",
+        productNote: "Ghi chú sản phẩm:",
+        productNotePlaceholder: "Ghi chú cụ thể sản phẩm...",
+        selectStoreBranchMessage: "Vui lòng chọn cửa hàng và chi nhánh để xem sản phẩm có sẵn.",
+        noProductsAvailable: "Không có sản phẩm nào cho cửa hàng và chi nhánh này.",
+        gettingLocation: "Đang lấy vị trí...",
+        registering: "Đang đăng ký...",
+        finishRegistration: "Hoàn tất đăng ký",
+        locationDenied: "Quyền truy cập vị trí bị từ chối. Vui lòng cho phép truy cập vị trí trong cài đặt trình duyệt.",
+        locationUnavailable: "Thông tin vị trí không khả dụng.",
+        locationTimeout: "Yêu cầu lấy vị trí người dùng đã hết thời gian.",
+        locationUnknownError: "Đã xảy ra lỗi không xác định khi lấy vị trí.",
+        geolocationNotSupported: "Trình duyệt của bạn không hỗ trợ định vị địa lý.",
+        locationUnavailableProceeding: "Vị trí không khả dụng, đang tiếp tục đăng ký...",
+        registrationError: "Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại."
+      }
+    };
+
+    // Get translation function
+    function t(key) {
+      return translations[LANGUAGE][key] || translations.EN[key] || key;
+    }
+
+    // Function to initialize UI with translations
+    function initializeTranslations() {
+      // Update static text elements
+      document.getElementById('pageTitle').textContent = t('title');
+      document.getElementById('labelName').textContent = t('yourName');
+      document.getElementById('labelArea').textContent = t('area');
+      document.getElementById('labelStore').textContent = t('store');
+      document.getElementById('labelBranch').textContent = t('branch');
+      document.getElementById('labelNote').textContent = t('note');
+      document.getElementById('note').placeholder = t('notePlaceholder');
+      document.getElementById('productSalesTitle').textContent = t('productSales');
+      document.getElementById('labelSamplingDate').textContent = t('samplingDate');
+      document.getElementById('labelSales').textContent = t('sales');
+      document.getElementById('labelSamplingActivity').textContent = t('samplingActivity');
+      document.getElementById('addSamplingActivityBtn').textContent = t('addSamplingActivity');
+      document.getElementById('labelStockBalance').textContent = t('stockBalance');
+      document.getElementById('addStockBalanceBtn').textContent = t('addStockBalance');
+      document.getElementById('submitButton').textContent = t('register');
+
+      // Update initial dropdown options
+      nameSelect.innerHTML = `<option value="">${t('loadingNames')}</option>`;
+      areaSelect.innerHTML = `<option value="">${t('loadingAreas')}</option>`;
+      storeSelect.innerHTML = `<option value="">${t('loadingStores')}</option>`;
+      branchSelect.innerHTML = `<option value="">${t('selectStoreFirst')}</option>`;
+    }
+
     // Function to load names from server
     function loadNames() {
       google.script.run
@@ -397,7 +541,7 @@
           nameSelect.innerHTML = '';
           const defaultOption = document.createElement('option');
           defaultOption.value = '';
-          defaultOption.textContent = '👤 Select your name';
+          defaultOption.textContent = t('selectName');
           nameSelect.appendChild(defaultOption);
 
           names.forEach(function (name) {
@@ -409,8 +553,8 @@
         })
         .withFailureHandler(function (error) {
           console.error('Failed to load names:', error);
-          nameSelect.innerHTML = '<option value="">❌ Failed to load names</option>';
-          messageDiv.textContent = 'Failed to load names: ' + error.message;
+          nameSelect.innerHTML = `<option value="">${t('failedToLoadNames')}</option>`;
+          messageDiv.textContent = t('failedToLoadNames') + ': ' + error.message;
           messageDiv.className = 'error';
         })
         .getMemberList();
@@ -423,7 +567,7 @@
           areaSelect.innerHTML = '';
           const defaultOption = document.createElement('option');
           defaultOption.value = '';
-          defaultOption.textContent = '🌍 Select area';
+          defaultOption.textContent = t('selectArea');
           areaSelect.appendChild(defaultOption);
 
           areas.forEach(function (area) {
@@ -435,8 +579,8 @@
         })
         .withFailureHandler(function (error) {
           console.error('Failed to load areas:', error);
-          areaSelect.innerHTML = '<option value="">❌ Failed to load areas</option>';
-          messageDiv.textContent = 'Failed to load areas: ' + error.message;
+          areaSelect.innerHTML = `<option value="">${t('failedToLoadAreas')}</option>`;
+          messageDiv.textContent = t('failedToLoadAreas') + ': ' + error.message;
           messageDiv.className = 'error';
         })
         .getAreaList();
@@ -464,7 +608,7 @@
           storeSelect.innerHTML = '';
           const defaultOption = document.createElement('option');
           defaultOption.value = '';
-          defaultOption.textContent = '🏪 Select store';
+          defaultOption.textContent = t('selectStore');
           storeSelect.appendChild(defaultOption);
 
           data.store.forEach(function (store) {
@@ -476,8 +620,8 @@
         })
         .withFailureHandler(function (error) {
           console.error('Failed to load stores:', error);
-          storeSelect.innerHTML = '<option value="">❌ Failed to load stores</option>';
-          messageDiv.textContent = 'Failed to load stores: ' + error.message;
+          storeSelect.innerHTML = `<option value="">${t('failedToLoadStores')}</option>`;
+          messageDiv.textContent = t('failedToLoadStores') + ': ' + error.message;
           messageDiv.className = 'error';
         })
         .getStoreList();
@@ -492,7 +636,7 @@
       if (selectedArea && storesData.areaStoreMap && storesData.areaStoreMap[selectedArea]) {
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
-        defaultOption.textContent = '🏢 Select store';
+        defaultOption.textContent = t('selectStore');
         storeSelect.appendChild(defaultOption);
 
         storesData.areaStoreMap[selectedArea].forEach(function (store) {
@@ -507,7 +651,7 @@
       } else {
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
-        defaultOption.textContent = '🏢 Select area first';
+        defaultOption.textContent = t('selectAreaFirst');
         storeSelect.appendChild(defaultOption);
 
         // Disable store select until area is chosen
@@ -517,7 +661,7 @@
       // Reset branch dropdown
       const branchDefaultOption = document.createElement('option');
       branchDefaultOption.value = '';
-      branchDefaultOption.textContent = '🏢 Select store first';
+      branchDefaultOption.textContent = t('selectStoreFirst');
       branchSelect.appendChild(branchDefaultOption);
       branchSelect.disabled = true;
     }
@@ -533,7 +677,7 @@
         if (storesData.areaStoreBranchMap[areaStoreKey]) {
           const defaultOption = document.createElement('option');
           defaultOption.value = '';
-          defaultOption.textContent = '🏢 Select branch';
+          defaultOption.textContent = t('selectBranch');
           branchSelect.appendChild(defaultOption);
 
           storesData.areaStoreBranchMap[areaStoreKey].forEach(function (branch) {
@@ -548,20 +692,20 @@
         } else {
           const defaultOption = document.createElement('option');
           defaultOption.value = '';
-          defaultOption.textContent = '🏢 No branches available';
+          defaultOption.textContent = t('noBranchesAvailable');
           branchSelect.appendChild(defaultOption);
           branchSelect.disabled = true;
         }
       } else if (selectedArea && !selectedStore) {
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
-        defaultOption.textContent = '🏢 Select store first';
+        defaultOption.textContent = t('selectStoreFirst');
         branchSelect.appendChild(defaultOption);
         branchSelect.disabled = true;
       } else {
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
-        defaultOption.textContent = '🏢 Select area first';
+        defaultOption.textContent = t('selectAreaFirst');
         branchSelect.appendChild(defaultOption);
         branchSelect.disabled = true;
       }
@@ -617,7 +761,7 @@
       instructionMessage.style.textAlign = 'center';
       instructionMessage.style.padding = '20px';
       instructionMessage.style.color = '#666';
-      instructionMessage.textContent = 'Please select a store and branch to see available products.';
+      instructionMessage.textContent = t('selectStoreBranchMessage');
       tabContent.appendChild(instructionMessage);
     }
 
@@ -636,6 +780,9 @@
 
     // Load names, areas, stores, and products when page loads
     window.addEventListener('load', function () {
+      // Initialize translations first
+      initializeTranslations();
+
       loadNames();
       loadAreas();
       loadStores();
@@ -666,15 +813,15 @@
       entryDiv.innerHTML = `
         <button type="button" class="remove-sampling-btn" onclick="removeSamplingActivity(${entryId})">×</button>
 
-        <label for="sampling-product-${entryId}">Product:</label>
+        <label for="sampling-product-${entryId}">${t('product')}</label>
         <select id="sampling-product-${entryId}" class="sampling-product-select">
-          <option value="">Select product (optional)</option>
+          <option value="">${t('selectProductOptional')}</option>
         </select>
 
-        <label for="sampling-cups-${entryId}">Cups Served:</label>
+        <label for="sampling-cups-${entryId}">${t('cupsServed')}</label>
         <input type="number" id="sampling-cups-${entryId}" min="0" placeholder="0">
 
-        <label for="sampling-bottles-${entryId}">Sample Bottles Used:</label>
+        <label for="sampling-bottles-${entryId}">${t('sampleBottlesUsed')}</label>
         <input type="number" id="sampling-bottles-${entryId}" min="0" placeholder="0">
       `;
 
@@ -697,7 +844,7 @@
       const currentValue = select.value;
 
       // Clear existing options except the first one
-      select.innerHTML = '<option value="">Select product (optional)</option>';
+      select.innerHTML = `<option value="">${t('selectProductOptional')}</option>`;
 
       // Get available products for the selected store/branch
       const availableProducts = getAvailableProducts();
@@ -842,12 +989,12 @@
       entryDiv.innerHTML = `
         <button type="button" class="remove-stock-btn" onclick="removeStockBalance(${entryId})">×</button>
 
-        <label for="stock-product-${entryId}">Product:</label>
+        <label for="stock-product-${entryId}">${t('product')}</label>
         <select id="stock-product-${entryId}" class="stock-product-select">
-          <option value="">Select product</option>
+          <option value="">${t('selectProduct')}</option>
         </select>
 
-        <label for="stock-bottles-${entryId}">No. of bottles remained:</label>
+        <label for="stock-bottles-${entryId}">${t('bottlesRemained')}</label>
         <input type="number" id="stock-bottles-${entryId}" min="0" placeholder="0">
       `;
 
@@ -870,7 +1017,7 @@
       const currentValue = select.value;
 
       // Clear existing options except the first one
-      select.innerHTML = '<option value="">Select product</option>';
+      select.innerHTML = `<option value="">${t('selectProduct')}</option>`;
 
       // Get available products for the selected store/branch
       const availableProducts = getAvailableProducts();
@@ -976,19 +1123,19 @@
             },
             (error) => {
               console.error("Failed to get location:", error);
-              let errorMessage = 'Failed to get location.';
+              let errorMessage = '';
               switch (error.code) {
                 case error.PERMISSION_DENIED:
-                  errorMessage = 'Location access denied. Please allow location access in your browser settings.';
+                  errorMessage = t('locationDenied');
                   break;
                 case error.POSITION_UNAVAILABLE:
-                  errorMessage = 'Location information is unavailable.';
+                  errorMessage = t('locationUnavailable');
                   break;
                 case error.TIMEOUT:
-                  errorMessage = 'The request to get user location timed out.';
+                  errorMessage = t('locationTimeout');
                   break;
                 case error.UNKNOWN_ERROR:
-                  errorMessage = 'An unknown error occurred while getting location.';
+                  errorMessage = t('locationUnknownError');
                   break;
               }
               messageDiv.textContent = errorMessage;
@@ -1002,7 +1149,7 @@
             }
           );
         } else {
-          messageDiv.textContent = 'Your browser does not support geolocation.';
+          messageDiv.textContent = t('geolocationNotSupported');
           messageDiv.className = 'error';
           reject(new Error("Geolocation not supported"));
         }
@@ -1036,38 +1183,38 @@
     // Function to validate product sales
     function validateProductSales(productSales) {
       const availableProducts = getAvailableProducts();
-      
+
       if (availableProducts.length === 0) {
-        messageDiv.textContent = 'No products available for this store and branch.';
+        messageDiv.textContent = t('noProductsAvailable');
         messageDiv.className = 'error';
         return false;
       }
-      
+
       let validationErrors = [];
-      
+
       // ALL available products must have their required fields filled
       availableProducts.forEach((product, tabIndex) => {
         const salesCount = document.getElementById(`product-sales-${tabIndex}`).value;
         const samplingCount = document.getElementById(`product-sampling-${tabIndex}`).value;
 
         // Determine the label based on product type
-        const salesLabel = product.type.toLowerCase().includes('rtd') ? 'No. of bottles sold' : 'No. of units sold';
+        const salesLabel = product.type.toLowerCase().includes('rtd') ? t('bottlesSold') : t('unitsSold');
 
         // Sales and sampling counts are always required
         if (!salesCount || salesCount === '') {
           validationErrors.push(`${product.name}: ${salesLabel} is required`);
         }
         if (!samplingCount || samplingCount === '') {
-          validationErrors.push(`${product.name}: No. of cartons sold is required`);
+          validationErrors.push(`${product.name}: ${t('cartonsSold')} is required`);
         }
       });
-      
+
       if (validationErrors.length > 0) {
         messageDiv.textContent = validationErrors[0]; // Show first error
         messageDiv.className = 'error';
         return false;
       }
-      
+
       return true;
     }
 
@@ -1141,26 +1288,26 @@
       const availableProducts = getAvailableProducts();
       const tabButtons = document.getElementById('productTabButtons');
       const tabContent = document.getElementById('productTabContent');
-      
+
       // Clear existing tabs
       tabButtons.innerHTML = '';
       tabContent.innerHTML = '';
-      
+
       if (availableProducts.length === 0) {
         // Show message when no products are available
         const noProductsMessage = document.createElement('div');
         noProductsMessage.style.textAlign = 'center';
         noProductsMessage.style.padding = '20px';
         noProductsMessage.style.color = '#666';
-        noProductsMessage.textContent = 'No products available for this store and branch combination.';
+        noProductsMessage.textContent = t('noProductsAvailable');
         tabContent.appendChild(noProductsMessage);
         return;
       }
-      
+
       // Create tabs for available products
       availableProducts.forEach((product, tabIndex) => {
         const originalIndex = productsData.indexOf(product);
-        
+
         // Create tab button with icon
         const tabButton = document.createElement('div');
         tabButton.className = 'tab-button';
@@ -1175,18 +1322,18 @@
         productForm.id = `product-form-${tabIndex}`;
 
         // Determine the label based on product type
-        const salesLabel = product.type.toLowerCase().includes('rtd') ? 'No. of bottles sold' : 'No. of units sold';
+        const salesLabel = product.type.toLowerCase().includes('rtd') ? t('bottlesSold') : t('unitsSold');
 
         productForm.innerHTML = `
           <h3>${product.type} - ${product.name}</h3>
           <label for="product-sales-${tabIndex}">${salesLabel}: <span style="color: red;">*</span></label>
           <input type="number" id="product-sales-${tabIndex}" min="0" placeholder="-" required>
 
-          <label for="product-sampling-${tabIndex}">No. of cartons sold: <span style="color: red;">*</span></label>
+          <label for="product-sampling-${tabIndex}">${t('cartonsSold')}: <span style="color: red;">*</span></label>
           <input type="number" id="product-sampling-${tabIndex}" min="0" placeholder="-" required>
 
-          <label for="product-note-${tabIndex}">Product Note:</label>
-          <textarea id="product-note-${tabIndex}" rows="2" placeholder="Product-specific notes..."></textarea>
+          <label for="product-note-${tabIndex}">${t('productNote')}</label>
+          <textarea id="product-note-${tabIndex}" rows="2" placeholder="${t('productNotePlaceholder')}"></textarea>
         `;
         tabContent.appendChild(productForm);
 
@@ -1202,7 +1349,7 @@
           document.getElementById(`product-note-${currentTabIndex}`).addEventListener(eventType, () => updateTabIndicatorForFiltered(currentTabIndex));
         });
       });
-      
+
       // Activate first tab if available
       if (availableProducts.length > 0) {
         switchProductTab(0);
@@ -1245,7 +1392,7 @@
       event.preventDefault(); // Prevent default form submission
 
       submitButton.disabled = true; // Disable button to prevent multiple submissions
-      messageDiv.textContent = 'Getting location...';
+      messageDiv.textContent = t('gettingLocation');
       messageDiv.className = ''; // Reset class
 
       // Try to get location, but don't fail if it's not available
@@ -1256,7 +1403,7 @@
         // Set placeholder values to indicate GPS failure
         latitudeInput.value = 'GPS_FAILED';
         longitudeInput.value = 'GPS_FAILED';
-        messageDiv.textContent = 'Location unavailable, proceeding with registration...';
+        messageDiv.textContent = t('locationUnavailableProceeding');
       }
 
       try {
@@ -1289,7 +1436,7 @@
         const stockBalances = collectStockBalances();
         params.append('stockBalances', JSON.stringify(stockBalances));
 
-        messageDiv.textContent = 'Registering...';
+        messageDiv.textContent = t('registering');
 
         // IMPORTANT: Replace 'YOUR_DEPLOYED_WEB_APP_URL' with your actual GAS Web App URL
         const response = await fetch('YOUR_DEPLOYED_WEB_APP_URL', {
@@ -1302,9 +1449,9 @@
 
         const data = await response.json();
         if (data.status === 'success') {
-          messageDiv.textContent = data.message;
+          messageDiv.textContent = t('finishRegistration');
           messageDiv.className = ''; // Success class is default (no error class)
-          
+
           // Clear form but keep Name, Area, and Sampling Date values
           const nameValue = nameSelect.value;
           const areaValue = areaSelect.value;
@@ -1333,11 +1480,7 @@
         }
       } catch (error) {
         console.error('Error during registration process:', error);
-        if (messageDiv.textContent === 'Getting location...') { // Only if location failed or prior
-          messageDiv.textContent = messageDiv.textContent + ' Please try again.'; // Append more info if needed
-        } else {
-          messageDiv.textContent = 'An error occurred during registration. Please try again.';
-        }
+        messageDiv.textContent = t('registrationError');
         messageDiv.className = 'error';
       } finally {
         submitButton.disabled = false; // Re-enable button

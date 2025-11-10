@@ -254,7 +254,13 @@ function getAddressFromCoordinates(lat, lng) {
 function doGet() {
   // This function is executed when there is a GET request
   // Usually HTML files are provided here
-  return HtmlService.createTemplateFromFile("Index")
+  const template = HtmlService.createTemplateFromFile("Index");
+
+  // Get language setting from Script Properties (default to "EN" if not set)
+  const language = PropertiesService.getScriptProperties().getProperty("Language") || "EN";
+  template.language = language;
+
+  return template
     .evaluate()
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL); // Required for embedding in <iframe> etc.
 }
