@@ -289,10 +289,107 @@
     #addStockBalanceBtn:hover {
       background-color: #0056b3;
     }
+
+    /* Login overlay styles */
+    #loginOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #f4f7f6;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #loginOverlay.hidden {
+      display: none;
+    }
+
+    .login-container {
+      background-color: #ffffff;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      box-sizing: border-box;
+    }
+
+    .login-container h1 {
+      margin-bottom: 30px;
+    }
+
+    .login-container input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+
+    .login-container button {
+      width: 100%;
+      padding: 12px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .login-container button:hover {
+      background-color: #2980b9;
+    }
+
+    .login-container button:disabled {
+      background-color: #95a5a6;
+      cursor: not-allowed;
+    }
+
+    .login-message {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 4px;
+      text-align: center;
+      font-size: 0.9em;
+    }
+
+    .login-message.error {
+      background-color: #ffebee;
+      color: #c62828;
+      border: 1px solid #ef5350;
+    }
+
+    .login-message.success {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #66bb6a;
+    }
   </style>
 </head>
 
 <body>
+  <!-- Login Overlay -->
+  <div id="loginOverlay">
+    <div class="login-container">
+      <h1>PG Report Login</h1>
+      <form id="loginForm">
+        <label for="loginPassword">Password:</label>
+        <input type="password" id="loginPassword" name="password" required autofocus>
+        <button type="submit" id="loginButton">Login</button>
+        <div id="loginMessage" class="login-message" style="display: none;"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Form -->
   <div class="container">
     <h1 id="pageTitle">PG Report</h1>
     <form id="salesForm">
@@ -375,6 +472,71 @@
   </div>
 
   <script>
+    // Login handling
+    const loginOverlay = document.getElementById('loginOverlay');
+    const loginForm = document.getElementById('loginForm');
+    const loginPasswordInput = document.getElementById('loginPassword');
+    const loginButton = document.getElementById('loginButton');
+    const loginMessageDiv = document.getElementById('loginMessage');
+
+    // Check if already authenticated
+    window.addEventListener('load', function() {
+      const savedPassword = sessionStorage.getItem('pgReportAuth');
+      if (savedPassword) {
+        // Auto-verify saved password
+        verifyAndHideLogin(savedPassword);
+      }
+    });
+
+    loginForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+      const password = loginPasswordInput.value;
+
+      if (!password) {
+        showLoginMessage('Please enter a password', 'error');
+        return;
+      }
+
+      loginButton.disabled = true;
+      showLoginMessage('Verifying...', '');
+
+      verifyAndHideLogin(password);
+    });
+
+    function verifyAndHideLogin(password) {
+      google.script.run
+        .withSuccessHandler(function(isValid) {
+          if (isValid) {
+            sessionStorage.setItem('pgReportAuth', password);
+            showLoginMessage('Login successful!', 'success');
+            setTimeout(function() {
+              loginOverlay.classList.add('hidden');
+              // Initialize the main form
+              initializeMainForm();
+            }, 500);
+          } else {
+            showLoginMessage('Invalid password. Please try again.', 'error');
+            sessionStorage.removeItem('pgReportAuth');
+            loginButton.disabled = false;
+            loginPasswordInput.value = '';
+            loginPasswordInput.focus();
+          }
+        })
+        .withFailureHandler(function(error) {
+          console.error('Login error:', error);
+          showLoginMessage('Login failed: ' + error.message, 'error');
+          loginButton.disabled = false;
+        })
+        .verifyPassword(password);
+    }
+
+    function showLoginMessage(text, type) {
+      loginMessageDiv.textContent = text;
+      loginMessageDiv.className = 'login-message ' + type;
+      loginMessageDiv.style.display = 'block';
+    }
+
+    // Main form variables
     const form = document.getElementById('salesForm');
     const messageDiv = document.getElementById('message');
     const latitudeInput = document.getElementById('latitude');
@@ -778,8 +940,8 @@
       activeProductTab = index;
     }
 
-    // Load names, areas, stores, and products when page loads
-    window.addEventListener('load', function () {
+    // Main form initialization function
+    function initializeMainForm() {
       // Initialize translations first
       initializeTranslations();
 
@@ -800,7 +962,7 @@
       const dd = String(today.getDate()).padStart(2, '0');
       const todayStr = `${yyyy}-${mm}-${dd}`;
       samplingDateInput.value = todayStr;
-    });
+    }
 
     // Sampling Activity Functions
     function addSamplingActivity() {
@@ -1435,6 +1597,12 @@
         // Add stock balances data
         const stockBalances = collectStockBalances();
         params.append('stockBalances', JSON.stringify(stockBalances));
+
+        // Add authentication password from sessionStorage
+        const authPassword = sessionStorage.getItem('pgReportAuth');
+        if (authPassword) {
+          params.append('authPassword', authPassword);
+        }
 
         messageDiv.textContent = t('registering');
 

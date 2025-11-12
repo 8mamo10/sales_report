@@ -26,6 +26,18 @@ function formatDateToDDMMYYYY(dateString) {
 }
 
 function doPost(e) {
+  // Verify password from POST request
+  const authPassword = e.parameter.authPassword;
+
+  if (!authPassword || !isAuthenticated(authPassword)) {
+    return ContentService.createTextOutput(
+      JSON.stringify({
+        status: "error",
+        message: "Authentication failed. Please log in again."
+      })
+    ).setMimeType(ContentService.MimeType.JSON);
+  }
+
   // Set the spreadsheet ID here
   const spreadSheetId =
     PropertiesService.getScriptProperties().getProperty("SpreadSheet_ID");
@@ -250,24 +262,50 @@ function getAddressFromCoordinates(lat, lng) {
   }
 }
 
-// Function for deploying as a web application (execute only once initially)
-function doGet() {
-  // This function is executed when there is a GET request
-  // Usually HTML files are provided here
-  const template = HtmlService.createTemplateFromFile("Index");
+// Function to verify password
+function verifyPassword(inputPassword) {
+  const correctPassword = PropertiesService.getScriptProperties().getProperty("Password");
 
-  // Get language setting from Script Properties (default to "EN" if not set)
+  if (!correctPassword) {
+    throw new Error("Password is not set in Script Properties. Please set 'Password' property.");
+  }
+
+  return inputPassword === correctPassword;
+}
+
+// Function to check if user is authenticated (via password parameter)
+function isAuthenticated(password) {
+  if (!password) {
+    return false;
+  }
+
+  return verifyPassword(password);
+}
+
+// Function for deploying as a web application (execute only once initially)
+function doGet(e) {
+  // Serve the main Index page which includes login logic
+  const template = HtmlService.createTemplateFromFile("Index");
   const language = PropertiesService.getScriptProperties().getProperty("Language") || "EN";
   template.language = language;
 
   return template
     .evaluate()
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL); // Required for embedding in <iframe> etc.
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
 // Function to return HTML file content
 function include(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
+}
+
+// Function to get the main form HTML after authentication
+function getMainFormHTML() {
+  const template = HtmlService.createTemplateFromFile("Index");
+  const language = PropertiesService.getScriptProperties().getProperty("Language") || "EN";
+  template.language = language;
+
+  return template.evaluate().getContent();
 }
 
 // Function to get member list

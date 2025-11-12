@@ -6,25 +6,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a Google Apps Script (GAS) based sales reporting system that records sales data with location tracking. The system consists of:
 
-- **Code.gs**: Main server-side functions for handling form submissions, geocoding, and data management
+- **Code.gs**: Main server-side functions for handling form submissions, geocoding, authentication, and data management
 - **Index.html**: Client-side web interface for sales reporting and sampling activity tracking
+- **Login.html**: Password-based login page for authentication
 - **Tests.gs**: Comprehensive unit tests for all major functions
 
 ## Architecture
 
 ### Core Components
 
-1. **Web App Handler** (`doPost`): Processes sales submissions with location validation
-2. **Geocoding Service** (`getAddressFromCoordinates`): Converts coordinates to addresses using Google Maps API
-3. **Data Sources**: Dynamically loads member, area, and store lists from Google Sheets
-4. **HTML Interface** (`doGet`): Serves the sales form with real-time location capture
+1. **Authentication System**: Password-based login protecting access to the application
+   - `doGet`: Shows login page or main form based on authentication status
+   - `verifyPassword`: Validates user password against Script Properties
+   - `isAuthenticated`: Checks if provided password is correct
+2. **Web App Handler** (`doPost`): Processes sales submissions with location validation and authentication
+3. **Geocoding Service** (`getAddressFromCoordinates`): Converts coordinates to addresses using Google Maps API
+4. **Data Sources**: Dynamically loads member, area, and store lists from Google Sheets
+5. **HTML Interface** (`doGet`): Serves login page or sales form with real-time location capture
 
 ### Data Flow
 
-1. User submits sales data via web form with geolocation
-2. `doPost` validates all required parameters (name, area, samplingDate, coordinates, store, branch, product sales)
-3. System geocodes coordinates to readable address
-4. Creates one record per product: [timestamp, name, area, store, branch, latitude, longitude, address, note, samplingDate, productType, productName, salesCount, samplingCount, productNote]
+1. User accesses web app and sees login page
+2. User enters password, which is validated against Script Properties
+3. Upon successful authentication, password is stored in sessionStorage and user sees the main form
+4. User submits sales data via web form with geolocation
+5. `doPost` validates authentication (password) and all required parameters (name, area, samplingDate, coordinates, store, branch, product sales)
+6. System geocodes coordinates to readable address
+7. Creates one record per product: [timestamp, name, area, store, branch, latitude, longitude, address, note, samplingDate, productType, productName, salesCount, samplingCount, productNote]
 
 ### Google Sheets Structure
 
@@ -58,6 +66,7 @@ runPerformanceTest()
 
 ### Required Script Properties
 ```
+Password: Authentication password for accessing the application
 SpreadSheet_ID: Google Sheets ID for data storage
 Record_Sheet_Name: Main record sheet name (default: 'Record')
 Member_Sheet_Name: Sheet containing employee names (default: 'Member')
@@ -65,13 +74,18 @@ Area_Sheet_Name: Sheet containing area names (default: 'Area')
 Store_Sheet_Name: Sheet containing store/branch data (default: 'Store')
 Product_Sheet_Name: Sheet containing product data (default: 'Product')
 Maps_API_KEY: Google Maps Geocoding API key
+Language: UI language setting (default: 'EN', supports 'EN', 'JA', 'VI')
 ```
 
 ## Key Implementation Details
 
+- **Authentication**: Password-based login system using Script Properties
+  - Password stored in sessionStorage on client-side after successful login
+  - All POST requests include password for server-side validation
+  - Login page shown by default; main form only accessible after authentication
 - **Parameter Validation**: Basic parameters (name, area, samplingDate, latitude, longitude, store, branch) plus at least one product sales required
 - **Error Handling**: Graceful degradation when geocoding fails (still records sales)
-- **Security**: API keys stored in Script Properties, not hardcoded
+- **Security**: API keys and passwords stored in Script Properties, not hardcoded
 - **Client-Side**: Uses navigator.geolocation with fallback error handling
 - **Dynamic Dropdowns**: Store selection populates corresponding branch options
 - **Sales Fields**: Separate sales/sampling counts and sales-specific notes

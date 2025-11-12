@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>Login - PG Report</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f7f6;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .login-container {
+      background-color: #ffffff;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+      font-size: 1.8em;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    button:disabled {
+      background-color: #95a5a6;
+      cursor: not-allowed;
+    }
+
+    .message {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 4px;
+      text-align: center;
+      font-size: 0.9em;
+    }
+
+    .error {
+      background-color: #ffebee;
+      color: #c62828;
+      border: 1px solid #ef5350;
+    }
+
+    .success {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #66bb6a;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h1>PG Report Login</h1>
+    <form id="loginForm">
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required autofocus>
+      <button type="submit" id="loginButton">Login</button>
+      <div id="message" class="message" style="display: none;"></div>
+    </form>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const passwordInput = document.getElementById('password');
+    const loginButton = document.getElementById('loginButton');
+    const messageDiv = document.getElementById('message');
+
+    // Check if already authenticated via sessionStorage
+    window.addEventListener('load', function() {
+      const savedPassword = sessionStorage.getItem('pgReportAuth');
+      if (savedPassword) {
+        // Auto-login with saved password
+        showMessage('Checking authentication...', '');
+        loginButton.disabled = true;
+
+        google.script.run
+          .withSuccessHandler(function(isValid) {
+            if (isValid) {
+              // Load main form
+              loadMainForm();
+            } else {
+              // Invalid saved password, clear it
+              sessionStorage.removeItem('pgReportAuth');
+              showMessage('Please log in', '');
+              loginButton.disabled = false;
+            }
+          })
+          .withFailureHandler(function(error) {
+            sessionStorage.removeItem('pgReportAuth');
+            showMessage('Please log in', '');
+            loginButton.disabled = false;
+          })
+          .verifyPassword(savedPassword);
+      }
+    });
+
+    loginForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const password = passwordInput.value;
+
+      if (!password) {
+        showMessage('Please enter a password', 'error');
+        return;
+      }
+
+      loginButton.disabled = true;
+      showMessage('Verifying...', '');
+
+      // Verify password with server
+      google.script.run
+        .withSuccessHandler(function(isValid) {
+          if (isValid) {
+            // Store password in sessionStorage
+            sessionStorage.setItem('pgReportAuth', password);
+            showMessage('Login successful! Loading form...', 'success');
+
+            // Load main form
+            setTimeout(function() {
+              loadMainForm();
+            }, 500);
+          } else {
+            showMessage('Invalid password. Please try again.', 'error');
+            loginButton.disabled = false;
+            passwordInput.value = '';
+            passwordInput.focus();
+          }
+        })
+        .withFailureHandler(function(error) {
+          console.error('Login error:', error);
+          showMessage('Login failed: ' + error.message, 'error');
+          loginButton.disabled = false;
+        })
+        .verifyPassword(password);
+    });
+
+    function loadMainForm() {
+      // Hide login form and load Index.html content
+      document.body.innerHTML = '<div style="text-align: center; padding: 50px;">Loading form...</div>';
+
+      // Use google.script.run to load the Index.html file
+      google.script.run
+        .withSuccessHandler(function(content) {
+          // Replace entire document with the form content
+          document.open();
+          document.write(content);
+          document.close();
+        })
+        .withFailureHandler(function(error) {
+          console.error('Failed to load form:', error);
+          document.body.innerHTML = '<div style="text-align: center; padding: 50px; color: red;">Failed to load form: ' + error.message + '</div>';
+        })
+        .getMainFormHTML();
+    }
+
+    function showMessage(text, type) {
+      messageDiv.textContent = text;
+      messageDiv.className = 'message ' + type;
+      messageDiv.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
