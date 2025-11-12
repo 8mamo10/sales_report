@@ -26,10 +26,10 @@ function formatDateToDDMMYYYY(dateString) {
 }
 
 function doPost(e) {
-  // Verify password from POST request
-  const authPassword = e.parameter.authPassword;
+  // Verify session token from POST request
+  const authToken = e.parameter.authToken;
 
-  if (!authPassword || !isAuthenticated(authPassword)) {
+  if (!authToken || !isAuthenticated(authToken)) {
     return ContentService.createTextOutput(
       JSON.stringify({
         status: "error",
@@ -262,7 +262,15 @@ function getAddressFromCoordinates(lat, lng) {
   }
 }
 
-// Function to verify password
+// Function to generate a session token with embedded timestamp
+function generateSessionToken() {
+  const timestamp = new Date().getTime();
+  const random = Utilities.getUuid();
+  const tokenData = timestamp + ':' + random;
+  return Utilities.base64Encode(tokenData);
+}
+
+// Function to verify password and return session token
 function verifyPassword(inputPassword) {
   const correctPassword = PropertiesService.getScriptProperties().getProperty("Password");
 
@@ -270,16 +278,50 @@ function verifyPassword(inputPassword) {
     throw new Error("Password is not set in Script Properties. Please set 'Password' property.");
   }
 
-  return inputPassword === correctPassword;
+  if (inputPassword === correctPassword) {
+    // Generate session token with embedded timestamp
+    const sessionToken = generateSessionToken();
+    return sessionToken;
+  }
+
+  return null;
 }
 
-// Function to check if user is authenticated (via password parameter)
-function isAuthenticated(password) {
-  if (!password) {
+// Function to check if session token is valid
+function isAuthenticated(sessionToken) {
+  if (!sessionToken) {
     return false;
   }
 
-  return verifyPassword(password);
+  try {
+    // Decode token to get timestamp
+    const decoded = Utilities.newBlob(Utilities.base64Decode(sessionToken)).getDataAsString();
+    const parts = decoded.split(':');
+
+    if (parts.length !== 2) {
+      return false;
+    }
+
+    const tokenTimestamp = parseInt(parts[0]);
+
+    if (isNaN(tokenTimestamp)) {
+      return false;
+    }
+
+    // Check if token is expired (24 hours)
+    const now = new Date().getTime();
+    const tokenAge = now - tokenTimestamp;
+    const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+    if (tokenAge > maxAge || tokenAge < 0) {
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Token validation error:', error);
+    return false;
+  }
 }
 
 // Function for deploying as a web application (execute only once initially)

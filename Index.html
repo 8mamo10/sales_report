@@ -481,10 +481,10 @@
 
     // Check if already authenticated
     window.addEventListener('load', function() {
-      const savedPassword = sessionStorage.getItem('pgReportAuth');
-      if (savedPassword) {
-        // Auto-verify saved password
-        verifyAndHideLogin(savedPassword);
+      const savedToken = sessionStorage.getItem('pgReportAuthToken');
+      if (savedToken) {
+        // Auto-verify saved token
+        verifyTokenAndHideLogin(savedToken);
       }
     });
 
@@ -500,14 +500,12 @@
       loginButton.disabled = true;
       showLoginMessage('Verifying...', '');
 
-      verifyAndHideLogin(password);
-    });
-
-    function verifyAndHideLogin(password) {
+      // Verify password and get session token
       google.script.run
-        .withSuccessHandler(function(isValid) {
-          if (isValid) {
-            sessionStorage.setItem('pgReportAuth', password);
+        .withSuccessHandler(function(sessionToken) {
+          if (sessionToken) {
+            // Store session token (not password)
+            sessionStorage.setItem('pgReportAuthToken', sessionToken);
             showLoginMessage('Login successful!', 'success');
             setTimeout(function() {
               loginOverlay.classList.add('hidden');
@@ -516,7 +514,7 @@
             }, 500);
           } else {
             showLoginMessage('Invalid password. Please try again.', 'error');
-            sessionStorage.removeItem('pgReportAuth');
+            sessionStorage.removeItem('pgReportAuthToken');
             loginButton.disabled = false;
             loginPasswordInput.value = '';
             loginPasswordInput.focus();
@@ -528,6 +526,32 @@
           loginButton.disabled = false;
         })
         .verifyPassword(password);
+    });
+
+    function verifyTokenAndHideLogin(token) {
+      google.script.run
+        .withSuccessHandler(function(isValid) {
+          if (isValid) {
+            showLoginMessage('Authenticated!', 'success');
+            setTimeout(function() {
+              loginOverlay.classList.add('hidden');
+              // Initialize the main form
+              initializeMainForm();
+            }, 300);
+          } else {
+            // Invalid or expired token
+            sessionStorage.removeItem('pgReportAuthToken');
+            showLoginMessage('Session expired. Please log in.', '');
+            loginButton.disabled = false;
+          }
+        })
+        .withFailureHandler(function(error) {
+          console.error('Token verification error:', error);
+          sessionStorage.removeItem('pgReportAuthToken');
+          showLoginMessage('Please log in', '');
+          loginButton.disabled = false;
+        })
+        .isAuthenticated(token);
     }
 
     function showLoginMessage(text, type) {
@@ -1598,10 +1622,10 @@
         const stockBalances = collectStockBalances();
         params.append('stockBalances', JSON.stringify(stockBalances));
 
-        // Add authentication password from sessionStorage
-        const authPassword = sessionStorage.getItem('pgReportAuth');
-        if (authPassword) {
-          params.append('authPassword', authPassword);
+        // Add authentication token from sessionStorage
+        const authToken = sessionStorage.getItem('pgReportAuthToken');
+        if (authToken) {
+          params.append('authToken', authToken);
         }
 
         messageDiv.textContent = t('registering');
